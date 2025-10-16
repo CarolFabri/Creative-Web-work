@@ -1,0 +1,7 @@
+#map {
+  height: 60vh; /* or 400px, or 100vh */
+  width: 100%;
+  width: 60%;
+  margin:  auto;
+  padding: top 10px;
+}
