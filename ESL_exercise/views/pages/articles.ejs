@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles</title>
+</head>
+<body>
+    <ul>
+    <% for(const article of articles) { %>
+        <li>
+            <h2><%= article.title %></h2>
+            <p><%= article.body %></p>
+        </li>
+        <hr />
+    <% } %>
+    </ul>
+</body>
+</html>
+<%- include('../partials/header') %>
+<main class="container py-5">
+  <h1>Articles</h1>
+  <ul class="pt-4">
+  <% for(const article of articles) { %>
+      <li>
+          <h3><%= article.title %></h3>
+          <p><%= article.body %></p>
+      </li>
+      <hr />
+  <% } %>
+  </ul>
+</main>
+<%- include('../partials/footer') %>

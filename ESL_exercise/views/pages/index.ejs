@@ -1,0 +1,10 @@
+<h1>Hi, <%= user.firstName  %>!</h1>
+<% if (user.isAdmin) { %>
+    <div style="background: #ddd; padding: 0.5em">You are an administrator</div>
+<% } %>
+<%- include('../partials/header') %>
+<main class="container py-5">
+  <h1>Hi, I am <%= user.firstName  %> <%= user.lastName %></h1>
+  <h3>Welcome to my blog</h3>
+</main>
+<%- include('../partials/footer') %>
