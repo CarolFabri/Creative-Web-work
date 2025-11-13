@@ -32,7 +32,7 @@
       list.innerHTML = '';
       posts.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = `${p.message} by user: ${p.user}`;
+        li.textContent = `${p.postid}:${p.message} by user: ${p.user}`;
         list.appendChild(li);
       });
     }
