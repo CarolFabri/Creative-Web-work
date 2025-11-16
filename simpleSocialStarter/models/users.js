@@ -1,31 +1,47 @@
-let users = [
-  {
-    username: "user1",
-    password: "123"
-  },
-  {
-    username: "user2",
-    password: "456"
-  }
-];
+//let users = [
+// {
+// username: "user1",
+// password: "123"
+// },
+// {
+//   username: "user2",
+//   password: "456"
+// }
+//];
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
 
-function addUser(username, password) {
-  let existingUser = findUser(username);
-  if (!existingUser) {
+const userSchema = new Schema({
+  username: String,
+  password: String
+})
+
+const userData = model('users', userSchema)
+
+async function addUser(usernameFromForm, password) {
+  // let found = userData.find(thisUser => thisUser.username == usernmae);
+  let found = null;
+  found = await userData.findOne({ username: usernameFromForm })
+  if (found) {
+    return false;
+  } else {
     let newUser = {
-      username: username,
+      username: usernameFromForm,
       password: password
-    };
-    users.push(newUser);
+    }
+    await userData.create(newUser);
     return true;
   }
-  return false;
+  //userData.push(newUser);
 }
 
-function checkUser(username, password) {
-  let foundUser = findUser(username);
-  if (foundUser) {
-    return foundUser.password == password;
+
+async function checkUser(usernameFromForm, password) {
+  //let foundUser = findUser(username);
+  let found = null;
+  found = await userData.findOne({ username: usernameFromForm })
+  if (found) {
+    return found.password == password;
   } else {
     return false;
   }

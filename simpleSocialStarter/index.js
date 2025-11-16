@@ -2,8 +2,9 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const users = require('./models/users');
+const userModel = require('./models/users');
 const posts = require('./models/posts');
+require('dotenv').config();
 
 const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -18,9 +19,27 @@ app.use(sessions({
   resave: false
 }));
 
-app.listen(3000, () => {
-  console.log('http://localhost:3000');
-});
+app.set('view engine', 'ejs');
+
+const mongoose = require("mongoose");
+
+const mongoDBPassword = process.env.MONGODB_PASSWORD;
+const mongoDBUser = process.env.MONGODB_USERNAME;
+const mongoDBAppName = process.env.MONGODB_MYAPPNAME;
+
+// 👉 build the URI using the ENV variables
+const connectionString = `mongodb+srv://${mongoDBUser}:${mongoDBPassword}@cluster0.1oldxnz.mongodb.net/?appName=${mongoDBAppName}`;
+
+mongoose.connect(connectionString)
+  .then(() => {
+    console.log("MongoDB Atlas connected");
+    app.listen(3000, () => {
+      console.log("http://localhost:3000");
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
@@ -40,42 +59,63 @@ function checkLoggedIn(req, res, nextAction) {
     res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
   }
 }
+function checkLoggedInState(req) {
+  return req.session && req.session.username
+}
 
-app.get('/app', checkLoggedIn, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'app.html'));
+app.get('/app', checkLoggedIn, async (req, res) => {
+  //res.sendFile(path.join(__dirname, 'views', 'app.html'));
+  res.render('pages/app', {
+    isLoggedIn: checkLoggedInState(req),
+    username: req.session.username,
+    posts: await posts.getLastNPosts(3)
+  })
 });
 
-app.get('/getposts', (req, res) => {
-  res.json({ posts: posts.getLastNPosts() });
+app.get('/getposts', async (req, res) => {
+  res.json({ posts: await posts.getLastNPosts() });
 });
 
-app.post('/newpost', (req, res) => {
+app.post('/newpost', async (req, res) => {
   posts.addPost(req.body.message, req.session.username);
-  res.sendFile(path.join(__dirname, 'views', 'app.html'));
+  //res.sendFile(path.join(__dirname, 'views', 'app.html'));
+  res.render('pages/app', {
+    isLoggedIn: checkLoggedInState(req),
+    username: req.session.username,
+    posts: await posts.getLastNPosts(3)
+  })
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  //res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  res.render('pages/login.ejs', { isLoggedIn: checkLoggedInState(req) })
 });
+
+
 
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'register.html'));
 });
 
-app.post('/register', (req, res) => {
-  if (users.addUser(req.body.username, req.body.password)) {
-    return res.sendFile(path.join(__dirname, 'views', 'login.html'));
+app.post('/register', async (req, res) => {
+  if (await userModel.addUser(req.body.username, req.body.password)) {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
   }
-
-  res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
 });
 
-app.post('/login', (req, res) => {
-  if (users.checkUser(req.body.username, req.body.password)) {
+app.post('/login', async (req, res) => {
+  if (await userModel.checkUser(req.body.username, req.body.password)) {
     req.session.username = req.body.username
-    res.sendFile(path.join(__dirname, 'views', 'app.html'));
+    res.render('pages/app', {
+      isLoggedIn: checkLoggedInState(req),
+      username: req.session.username,
+      posts: await posts.getLastNPosts(3)
+    })
+    //res.sendFile(path.join(__dirname, 'views', 'app.html'));
   } else {
-    console.log('login failed');
+    //console.log('login failed');
     res.sendFile(path.join(__dirname, 'views', 'login_failed.html'));
   }
 

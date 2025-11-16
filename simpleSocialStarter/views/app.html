@@ -1,56 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Simple Social App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
+
 <body>
   <h1>Simple Social App</h1>
-
-  <nav>
-    <a href="/login">Login</a>
-    <a href="/logout">Logout</a>
-    <a href="/register">Register</a>
-    <a href="/app">Application</a>
-  </nav>
-
+  <a href="login">Login</a>
+  <a href="logout">Logout</a>
+  <a href="register">Register</a>
+  <a href="app">Application</a>
   <h4>New post</h4>
   <form action="/newpost" method="POST">
-    <label for="message">message</label>
-    <input type="text" id="message" name="message" required />
-    <button type="submit">post message</button>
+    <label>message</label>
+    <input type="text" id="message" name="message">
+    <input type="submit" value="post message">
   </form>
-
   <h4>Recent posts</h4>
-  <ul id="recent-posts">Loading…</ul>
-
+  <ul id="recent-posts"></ul>
   <script>
-    const list = document.getElementById('recent-posts');
+    const recentPosts = document.getElementById('recent-posts')
 
-    function render(posts) {
-      list.innerHTML = '';
-      posts.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.postid}:${p.message} by user: ${p.user}`;
-        list.appendChild(li);
-      });
+    fetch('/getposts')
+      .then(response => response.json())
+      .then(processData)
+
+
+    function processData(data) {
+      console.log(data)
+      recentPosts.innerHTML = ""
+      data.posts.forEach(post => {
+        let li = document.createElement('li')
+        li.innerText = `${post.message} by user: ${post.user}`
+        recentPosts.appendChild(li)
+      })
     }
-
-    async function loadPosts() {
-      try {
-        const res = await fetch('/getposts', { cache: 'no-store' }); // no caching just in case
-        const data = await res.json(); // expects { posts: [...] }
-        console.log('GET /getposts ->', data);
-        render(Array.isArray(data.posts) ? data.posts : []);
-      } catch (e) {
-        console.error(e);
-        list.textContent = 'Failed to load posts.';
-      }
-    }
-
-    // ensure it runs on every load
-    window.addEventListener('DOMContentLoaded', loadPosts);
   </script>
 </body>
+
 </html>

@@ -1,20 +1,18 @@
-<%--include('../partials/header')%>
+<%- include('../partials/header') %>
 
-<body>
-    <h2>Simple Social - User Login</h2>
-   <!--<nav>
-        <a href="login">Login</a>
-        <a href="logout">Logout</a>
-        <a href="register">Register</a>
-        <a href="app">Application</a>
-    </nav>--> 
-    <form action="/login" method="POST">
-        <label>Username</label>
-        <input type="text" id="username" name="username"><br>
-        <label>Password</label>
-        <input type="text" id="password" name="password"><br>
-        <input type="submit" value="Login">
-    </form>
+    <body>
+        <h2>Simple Social - User Login</h2>
+        <%- include('../partials/nav') %>
 
-</body>
-</html>
+            <form action="/login" method="POST">
+                <label>Username</label>
+                <input type="text" id="username" name="username"><br>
+
+                <label>Password</label>
+                <input type="text" id="password" name="password"><br>
+
+                <input type="submit" value="Login">
+            </form>
+    </body>
+
+    <%- include('../partials/footer') %>

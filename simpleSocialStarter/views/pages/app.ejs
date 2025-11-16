@@ -1,19 +1,50 @@
-<body>
-  <h1>Simple Social App</h1>
+<%- include('../partials/header') %>
 
-  <nav>
-    <a href="/login">Login</a>
-    <a href="/logout">Logout</a>
-    <a href="/register">Register</a>
-    <a href="/app">Application</a>
-  </nav>
+  <body>
+    <h1>Simple Social App</h1>
+    <%- include('../partials/nav') %>
 
-  <h4>New post</h4>
-  <form action="/newpost" method="POST">
-    <label for="message">message</label>
-    <input type="text" id="message" name="message" required />
-    <button type="submit">post message</button>
-  </form>
+      <h4>New post</h4>
+      <form action="/newpost" method="POST">
+        <label>message</label>
+        <input type="text" id="message" name="message" required />
+        <input type="submit" value="post message">
+      </form>
 
-  <h4>Recent posts</h4>
-  <ul id="recent-posts">Loading…</ul>
+      <h4>Recent posts</h4>
+      <ul id="recent-posts">
+        <% posts.forEach(post=> { %>
+
+          <li>
+            <p>Message: <%= post.message %>
+            </p>
+            <p>PostedBy: <%= post.user %>
+            </p>
+          </li>
+
+          <% }) %>
+      </ul>
+
+      <!--
+  <script>
+    const list = document.getElementById('recent-posts');
+
+    // fetch('/getposts')
+    //   .then(response => response.json())
+    //   .then(processData)
+
+    function processData(data) {
+      console.log(data)
+      recentPosts.innerHTML = ""
+      data.posts.forEach(post => {
+        let li = document.createElement('li')
+        li.innerText = `${post.message} by user: ${post.user}`
+        recentPosts.appendChild(li)
+      })
+    }
+  </script>
+  -->
+
+  </body>
+
+  <%- include('../partials/footer') %>
