@@ -63,6 +63,31 @@ function checkLoggedInState(req) {
   return req.session && req.session.username
 }
 
+function findUser(username) {
+  return userModel.findUser(username);
+}
+
+function updateProfile (req){
+  return req.session && req.session.username
+}
+
+async function checkAdmin(req, res,nextAction){
+  try{
+    if(!req.session||!req.session.username){
+      return res.sendFile(path.join(__dirname,'/views','notloggedin.html'));
+    }
+    const user = await findUser(req.session.username);
+
+    if(!user||!user.isAdmin){
+      return res.status(403).send("Access denied. Admins only");
+    }
+    req.currentUser=user;
+    nextAction();
+  } catch(err){
+    console.error("Error checking admin status:",err);
+    res.status(500).send("Internal server error");
+  }
+}
 app.get('/app', checkLoggedIn, async (req, res) => {
   //res.sendFile(path.join(__dirname, 'views', 'app.html'));
   res.render('pages/app', {
@@ -92,13 +117,42 @@ app.get('/login', (req, res) => {
 });
 
 
-
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'register.html'));
 });
 
+app.get('/profile',async (req,res)=>{
+  if (!req.session.username){
+     return res.redirect('/login');
+    //return res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
+  }
+  const user = await findUser(req.session.username);
+    res.render('pages/profile',{
+      isLoggedIn: true,
+      username: req.session.username,
+      user: user
+  });
+});
+
+app.get('/admin',checkAdmin,async(req,res)=>{
+  try{
+    const users= await userModel.getAllUsersWithoutPasswords();
+  const adminPosts= await posts.getLastNPosts(3);
+  res.render('pages/admin',{
+    isLoggedIn: checkLoggedInState(req),
+    users : users,
+     posts: adminPosts
+
+  });
+} catch(err){
+  console.error("Error loading admin page:",err);
+  res.status(500).send("Internal server error");
+  }  
+});
+
+
 app.post('/register', async (req, res) => {
-  if (await userModel.addUser(req.body.username, req.body.password)) {
+  if (await userModel.addUser(req.body.username, req.body.password, req.body.firstname, req.body.lastname)) {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
   } else {
     res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
@@ -106,8 +160,12 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  if (await userModel.checkUser(req.body.username, req.body.password)) {
-    req.session.username = req.body.username
+  const user = await findUser(req.body.username);
+  if (user && await userModel.checkUser(req.body.username, req.body.password)) {
+    // ✅ set everything the checkLoggedIn function expects
+    req.session.username  = user.username;
+    req.session.firstname = user.firstname;
+    req.session.lastname  = user.lastname;
     res.render('pages/app', {
       isLoggedIn: checkLoggedInState(req),
       username: req.session.username,
@@ -119,6 +177,33 @@ app.post('/login', async (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'login_failed.html'));
   }
 
+});
+app.post('/profile', async (req, res) => {
+  await userModel.updateProfile(
+    req.session.username,
+    req.body.firstname,
+    req.body.lastname
+  );
+
+  const user = await findUser(req.session.username);
+
+  res.render('pages/profile', {
+    isLoggedIn: checkLoggedInState(req),
+    username: req.session.username,
+    user: user
+  });
+});
+
+app.post('/admin/deleteUser',checkAdmin, async(req,res)=>{
+    const userId = req.body.userId;
+    await userModel.deleteUserById(userId);
+    res.redirect('/admin');
+});
+
+app.post('/admin/deletePost',checkAdmin, async(req,res)=>{
+    const postId = req.body.postId;
+    await posts.deletePostById(postId);
+    res.redirect('/admin');
 });
 
 app.get('/logout', (req, res) => {

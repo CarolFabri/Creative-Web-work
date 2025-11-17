@@ -1,0 +1,18 @@
+<%- include('../partials/header') %>
+
+ <body>
+        <h2>Simple Social - Profile </h2>
+        <%- include('../partials/nav') %>
+
+        
+            <form action="/profile" method="POST">
+                <label>First Name</label>
+                 <input type ="text" name= "firstname" value="<%= user.firstname %>">
+
+                  <label>Last Name</label>
+                  <input type ="text" name= "lastname" value="<%= user.lastname%>">
+
+                  <input type="submit" value="submit">
+            </form>
+
+    </body>

@@ -13,21 +13,26 @@ const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
   username: String,
-  password: String
+  password: String,
+  firstname: String,
+  lastname:String,
+  isAdmin: Boolean
 })
 
 const userData = model('users', userSchema)
 
-async function addUser(usernameFromForm, password) {
+async function addUser(usernameFromForm, password, firstnameFromForm, lastnameFromForm) {
   // let found = userData.find(thisUser => thisUser.username == usernmae);
   let found = null;
-  found = await userData.findOne({ username: usernameFromForm })
+  found = await userData.findOne({ username: usernameFromForm})
   if (found) {
     return false;
   } else {
     let newUser = {
       username: usernameFromForm,
-      password: password
+      password: password,
+      firstname:firstnameFromForm,
+      lastname:lastnameFromForm
     }
     await userData.create(newUser);
     return true;
@@ -47,12 +52,35 @@ async function checkUser(usernameFromForm, password) {
   }
 }
 
-function findUser(username) {
-  return users.find(thisUser => thisUser.username == username);
+async function findUser(username) {
+  return userData.findOne({username: username})
 }
+async function updateProfile(username, firstname, lastname) {
+  return userData.updateOne(
+    { username: username },
+    { $set: { firstname: firstname, lastname: lastname } }
+    
+  ); 
+} 
+
+async function findUserbyUsername(username){
+  return userData.findOne({username:username})
+}
+
+async function getAllUsersWithoutPasswords() {
+  return userData.find({}, {password: 0}) // exclude password field, admin won't see passwords 
+}
+async function deleteUserById(id) {
+  return userData.deleteOne({ _id: id });
+}
+
 
 module.exports = {
   addUser,
   checkUser,
-  findUser
+  findUser,
+  updateProfile,
+  findUserbyUsername,
+  getAllUsersWithoutPasswords,
+  deleteUserById
 };
