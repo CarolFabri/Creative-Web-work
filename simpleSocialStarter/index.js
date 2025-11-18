@@ -52,16 +52,19 @@ function checkLoggedIn(req, res, nextAction) {
       nextAction()
     } else {
       req.session.destroy()
-      res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
+      res.render('pages/notloggedin', {isLoggedIn: false});
+      // res.sendFile(path.join(__dirname, '/views', 'notLoggedin.html;)) sending ejs file instead of html ! 
     }
   } else {
     req.session.destroy()
-    res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
+    res.render('pages/notloggedin', {isLoggedIn: false});
+   // res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
   }
 }
 function checkLoggedInState(req) {
   return req.session && req.session.username
 }
+
 
 function findUser(username) {
   return userModel.findUser(username);
@@ -74,12 +77,15 @@ function updateProfile (req){
 async function checkAdmin(req, res,nextAction){
   try{
     if(!req.session||!req.session.username){
-      return res.sendFile(path.join(__dirname,'/views','notloggedin.html'));
+      return res.render('pages/notloggedin',{isLoggedIn:false});
+      //return res.sendFile(path.join(__dirname,'/views','notloggedin.html'));
     }
     const user = await findUser(req.session.username);
-
     if(!user||!user.isAdmin){
-      return res.status(403).send("Access denied. Admins only");
+      return res.render('pages/login', {
+      errorMessage: "Access denied.Admins Only, login ",
+      isLoggedIn: false
+      });
     }
     req.currentUser=user;
     nextAction();
@@ -88,6 +94,7 @@ async function checkAdmin(req, res,nextAction){
     res.status(500).send("Internal server error");
   }
 }
+
 app.get('/app', checkLoggedIn, async (req, res) => {
   //res.sendFile(path.join(__dirname, 'views', 'app.html'));
   res.render('pages/app', {
@@ -113,18 +120,19 @@ app.post('/newpost', async (req, res) => {
 
 app.get('/login', (req, res) => {
   //res.sendFile(path.join(__dirname, 'views', 'login.html'));
-  res.render('pages/login.ejs', { isLoggedIn: checkLoggedInState(req) })
+  res.render('pages/login', { errorMessage: null, isLoggedIn: checkLoggedInState(req) })
 });
 
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'register.html'));
+  res.render ('pages/register', { isLoggedIn: checkLoggedInState(req)});
+  //res.sendFile(path.join(__dirname, 'views', 'register.html'));
 });
 
 app.get('/profile',async (req,res)=>{
   if (!req.session.username){
-     return res.redirect('/login');
-    //return res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
+     return res.redirect('/login'); 
+    //return res.sendFile(path.join(__dirname, '/views', 'notloggedin.html')) from Dave's code, both code would redirect to login, but the redirect is shorter
   }
   const user = await findUser(req.session.username);
     res.render('pages/profile',{
@@ -136,12 +144,12 @@ app.get('/profile',async (req,res)=>{
 
 app.get('/admin',checkAdmin,async(req,res)=>{
   try{
-    const users= await userModel.getAllUsersWithoutPasswords();
-  const adminPosts= await posts.getLastNPosts(3);
-  res.render('pages/admin',{
+  const users= await userModel.getAllUsersWithoutPasswords(); // for security we don't want to show passwords even to admin 
+  const adminPosts= await posts.getLastNPosts(3); // showing only last 3 posts to avoid code to break and be overloaded with too many post 
+  res.render('pages/admin',{ // again used the same code used for login
     isLoggedIn: checkLoggedInState(req),
     users : users,
-     posts: adminPosts
+    posts: adminPosts
 
   });
 } catch(err){
@@ -153,16 +161,18 @@ app.get('/admin',checkAdmin,async(req,res)=>{
 
 app.post('/register', async (req, res) => {
   if (await userModel.addUser(req.body.username, req.body.password, req.body.firstname, req.body.lastname)) {
-    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+    res.render('pages/login', { isLoggedIn:false});
+    //res.sendFile(path.join(__dirname, 'views', 'login.html'));
   } else {
-    res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
+    res.render ('pages/registration_failed', { isLoggedIn:true});
+    //res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
   }
 });
 
 app.post('/login', async (req, res) => {
   const user = await findUser(req.body.username);
   if (user && await userModel.checkUser(req.body.username, req.body.password)) {
-    // ✅ set everything the checkLoggedIn function expects
+    //added here the first name and lastname, not body but session.
     req.session.username  = user.username;
     req.session.firstname = user.firstname;
     req.session.lastname  = user.lastname;
@@ -173,28 +183,29 @@ app.post('/login', async (req, res) => {
     })
     //res.sendFile(path.join(__dirname, 'views', 'app.html'));
   } else {
-    //console.log('login failed');
-    res.sendFile(path.join(__dirname, 'views', 'login_failed.html'));
+    res.render('pages/login_failed', {isLoggedIn: false});
+    //res.sendFile(path.join(__dirname, 'views', 'login_failed.html'));
   }
 
 });
 app.post('/profile', async (req, res) => {
   await userModel.updateProfile(
+    //in here is where we update the profile, also not session but body I got confused a bit. Body is from the form, session is to keep the user logged in 
     req.session.username,
     req.body.firstname,
     req.body.lastname
   );
 
-  const user = await findUser(req.session.username);
+  const user = await findUser(req.session.username); // using the same funciton used for login, to get updated user info from CURRENT session username 
 
-  res.render('pages/profile', {
+  res.render('pages/profile', { // used the same code from login to render the profile page with updated info
     isLoggedIn: checkLoggedInState(req),
     username: req.session.username,
     user: user
   });
 });
 
-app.post('/admin/deleteUser',checkAdmin, async(req,res)=>{
+app.post('/admin/deleteUser',checkAdmin, async(req,res)=>{ // I was trying to figure how to use the checkAdmin function here to avoid code repetition, perhaps I could combine with the deletePost function, but I left as is as it makes sense for me 
     const userId = req.body.userId;
     await userModel.deleteUserById(userId);
     res.redirect('/admin');
@@ -207,6 +218,6 @@ app.post('/admin/deletePost',checkAdmin, async(req,res)=>{
 });
 
 app.get('/logout', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'logout.html'));
+  res.render('pages/loggedout', { isLoggedIn: false});
 });
 
