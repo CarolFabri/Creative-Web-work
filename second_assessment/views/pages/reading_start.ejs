@@ -1,0 +1,45 @@
+<%- include('../partial/header') %>
+
+<h1>Access Camera and Capture Photo</h1>
+
+<video id="webcam" autoplay playsinline></video>
+<canvas id="canvas" style="display:none"></canvas>
+<button id="snap">Capture</button>
+
+<script src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
+<script>
+  const webcamElement = document.getElementById('webcam');
+  const canvasElement = document.getElementById('canvas');
+  const webcam = new Webcam(webcamElement, 'user', canvasElement);
+
+  webcam.start()
+    .then(() => console.log("Webcam Started"))
+    .catch(err => console.error(err));
+
+  document.getElementById('snap').addEventListener('click', async () => {
+    try { //await can be use inside try as well, and different from function we don't require the use of sync 
+      const picture = webcam.snap(); // take photo
+
+      const res = await fetch('/reading/capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: picture })
+      });
+
+      const data = await res.json();
+      console.log("Backend response", data);
+
+      
+      if (data.success) {
+        window.location.href ='/reading_topic';
+
+     } else {
+      console.log("No success flag:", data);
+    }
+  } catch (err) {
+    console.error("Capture error:", err);
+  }
+}); 
+</script>
+
+<%- include('../partial/footer') %>
