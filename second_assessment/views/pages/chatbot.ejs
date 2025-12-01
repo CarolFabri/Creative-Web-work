@@ -1,0 +1,39 @@
+<%- include('../partial/header') %>
+
+<h1>Vardani The Fortune Reader</h1>
+
+<div>
+  <textarea id="user-input" rows="3" cols="40" placeholder="Ask me a question about love, career or health and I'll let you know your fortune"></textarea>
+  <br>
+  <button type="button" onclick="sendToBot()">Send</button>
+</div>
+
+<h3>Your Fortune is:</h3>
+<p id="bot-reply"></p>
+
+<script>
+  function sendToBot() {
+    const message = document.getElementById('user-input').value;
+
+    fetch('/chatbot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error(data.error);
+          document.getElementById('bot-reply').innerText = 'Error: ' + data.error;
+          return;
+        }
+        document.getElementById('bot-reply').innerText = data.reply;
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('bot-reply').innerText = 'Network error.';
+      });
+  }
+</script>
+
+<%- include('../partial/footer') %>

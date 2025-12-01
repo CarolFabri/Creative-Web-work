@@ -1,0 +1,22 @@
+<%- include('../partial/header') %>
+
+    <body>
+        <h2>Simple Social - User Login</h2>
+        <%- include('../partials/nav') %>
+
+            <form action="/login" method="POST">
+                <label>Username</label>
+                <input type="text" id="username" name="username"><br>
+
+                <label>Password</label>
+                <input type="text" id="password" name="password"><br>
+
+                <input type="submit" value="Login">
+            </form>
+            
+           <% if (errorMessage) { %>
+  <p ><%= errorMessage %></p>
+<% } %>
+    </body>
+
+    <%- include('../partial/footer') %>
