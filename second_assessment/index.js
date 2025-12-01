@@ -3,10 +3,13 @@ const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' })
 const session = require('express-session');
-require('dotenv').config();              // ✅ this is enough, keep it
+require('dotenv').config();              
 const OpenAI = require('openai'); 
+const userModel = require('./models/userModel');
 
+const vision =require('@google-cloud/vision');
 
+const visionClient = new vision.ImageAnnotatorClient();
 
 const { getRandomMessage } = require('./utils/palm_reading_responses');
 //const { message, topic } = req.body;
@@ -23,8 +26,8 @@ app.set('views',path.join(__dirname,'views'));
 //middleware 
 app.use(express.urlencoded({extended: true, limit:'5mb'}));
 app.use(express.static('public'));
-app.use(express.json());
 
+app.use(express.json({ limit: '5mb' }));
 
 
 //local host server
@@ -43,6 +46,12 @@ app.use(sessions({
   cookie: { maxAge: threeMinutes },
   resave: false
 }));
+
+app.use((req, res, next) => {
+  res.locals.isLoggedIn = !!(req.session && req.session.username);
+  res.locals.errorMessage = null;
+  next();
+});
 
 app.set('view engine', 'ejs');
 
@@ -65,6 +74,24 @@ mongoose.connect(connectionString)
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+
+//hand detect help functions 
+
+function base64ToBuffer(dataUrl){
+  return Buffer.from(dataUrl.split(',')[1], 'base64');
+}
+async function isHandInImage(imageBuffer) {
+  const [result] = await visionClient.labelDetection({ image: { content: imageBuffer } });
+  const labels = result.labelAnnotations || [];
+
+  return labels.some(l =>
+    ['hand', 'palm', 'finger', 'wrist'].includes(l.description.toLowerCase())
+  );
+}
+
+
+
+
 
 
 //function for login
@@ -121,15 +148,24 @@ async function checkAdmin(req, res,nextAction){
 
 
 
+
 //openAi chatbot 
 const client = new OpenAI({                // ✅ create the client here
   apiKey: process.env.OPENAI_API_KEY
 });
 
 app.get('/', (req, res) => {
-  res.render('pages/reading_start'); 
-  // ^ use the correct path to your EJS file
+  res.render('pages/login', { 
+    errorMessage: null,
+    isLoggedIn: checkLoggedInState(req)
+  });
 });
+
+app.get('/reading_start', (req, res) => {
+  res.render('pages/reading_start');
+});
+
+
 
 app.get('/reading_topic', (req, res) => {
   res.render('pages/reading_topic');
@@ -139,15 +175,41 @@ app.get('/chatbot', (req, res) => {
   res.render('pages/chatbot');
 });
 
+// app.post('/start', (req, res) => {
+//   console.log(req.body);
+//   res.json({ success: true });
+// });
 
-app.post('/reading/capture', (req, res) => {
-  const { image } = req.body;
-  console.log('Got image:', image?.slice(0, 50));
-  res.json({ success: true });
+
+app.post('/reading/capture', async (req, res) => {
+  // const { image } = req.body;
+  // console.log('Got image:', image?.slice(0, 50));
+  // res.json({ success: true });
+  try {
+    const { image } = req.body;
+
+    if (!image) {
+      return res.json({
+        success: false,
+        message: 'No image received, please try again.'
+      });
+    }
+
+    const imgBuffer = Buffer.from(image.split(',')[1], 'base64'); //webcam send base64 image string we convert this to buffer 
+    const handFound = await isHandInImage(imgBuffer); // in here we're sending the buffer to the google API 
+
+    return res.json({ success: handFound });
+
+  } catch (err) {
+    console.error('Error in /reading/capture:', err);
+    return res.json({
+      success: false,
+      message: 'Server error analysing image.'
+    });
+  }
 });
 
-
-
+  
 
 app.post('/reading', (req,res)=>{
   const {topic} = req.body;
@@ -206,15 +268,10 @@ app.get('/app', checkLoggedIn, async (req, res) => {
   res.render('pages/app', {
     isLoggedIn: checkLoggedInState(req),
     username: req.session.username,
-    posts: await posts.getLastNPosts(3)
+   // posts: await posts.getLastNPosts(3)
   })
 });
 
-
-app.get('/login', (req, res) => {
-  //res.sendFile(path.join(__dirname, 'views', 'login.html'));
-  res.render('pages/login', { errorMessage: null, isLoggedIn: checkLoggedInState(req) })
-});
 
 
 app.get('/register', (req, res) => {
@@ -238,7 +295,7 @@ app.get('/profile',async (req,res)=>{
 app.get('/admin',checkAdmin,async(req,res)=>{
   try{
   const users= await userModel.getAllUsersWithoutPasswords(); // for security we don't want to show passwords even to admin 
-  const adminPosts= await posts.getLastNPosts(3); // showing only last 3 posts to avoid code to break and be overloaded with too many post 
+ // const adminPosts= await posts.getLastNPosts(3); // showing only last 3 posts to avoid code to break and be overloaded with too many post 
   res.render('pages/admin',{ // again used the same code used for login
     isLoggedIn: checkLoggedInState(req),
     users : users,
@@ -272,7 +329,7 @@ app.post('/login', async (req, res) => {
     res.render('pages/app', {
       isLoggedIn: checkLoggedInState(req),
       username: req.session.username,
-      posts: await posts.getLastNPosts(3)
+     // posts: await posts.getLastNPosts(3)
     })
     //res.sendFile(path.join(__dirname, 'views', 'app.html'));
   } else {
@@ -304,11 +361,7 @@ app.post('/admin/deleteUser',checkAdmin, async(req,res)=>{ // I was trying to fi
     res.redirect('/admin');
 });
 
-app.post('/admin/deletePost',checkAdmin, async(req,res)=>{
-    const postId = req.body.postId;
-    await posts.deletePostById(postId);
-    res.redirect('/admin');
-});
+
 
 app.get('/logout', (req, res) => {
   res.render('pages/loggedout', { isLoggedIn: false});
