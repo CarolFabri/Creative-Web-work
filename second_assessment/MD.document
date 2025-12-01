@@ -1,0 +1,36 @@
+Purpose and Audience
+
+The app is made for entertainment and to bring the user into a mystical world.
+The purpose of the app is to find out your luck in two different ways. The first way is through a palm reading, 
+where the user takes a photo of their hand and receives a fortune message. The second way is through a 
+Romani-style fortune reading in a chat, where the user can ask questions about love, health, or career.
+
+Technology Stack and Application Architecture
+
+For the technology, I am using Node.js as the backend, MongoDB as the database, and EJS to render the pages.
+On the frontend I use JavaScript, the camera API (getUserMedia), and I will also use APIs for the chatbot.
+The backend receives the hand image, selects a message based on the topic, and sends it back to the user.
+
+UI/UX Design Considerations
+For the UI/UX design, I am creating the layout using tools like Adobe Express, Adobe Fresco, and Photoshop.
+My goal is to make the design look mystical but still simple and easy for the user to navigate.
+
+Major Features and MVP
+The main features and MVP are:
+• Taking a photo of the user’s hand
+• Sending the image to the backend
+• Choosing a topic (love, career, health)
+• Receiving a random fortune reading
+• A small chatbot that only talks about the three topics
+
+Anticipated Challenges
+The main challenges I expect are learning how to work with APIs, making the camera run correctly, 
+and making sure the chatbot answers stay on topic. Another challenge is making an existing API or tool look unique inside my own design.
+
+Experiments Undertaken
+So far, I have experimented with the camera API and with the OpenAI API for the chatbot. I plan to use more APIs later as the project continues.
+
+Learning Points from Independent Study
+From my independent study, I have taken LinkedIn Learning courses for JavaScript and Node. 
+I was considering learning React, but I decided to continue using EJS because
+I still need to focus on backend skills and keep the project simpler.
