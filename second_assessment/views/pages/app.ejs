@@ -1,6 +1,30 @@
 <%- include('../partial/header') %>
-<button type="button" onclick="startHere('')" ></button>
-<script>
+<%- include('../partial/nav') %>
+<h1> Hello There !</h1>
 
-</script>
-<%- include('../partial/footer') %>
+<button type="button" onclick="window.location.href='/reading_start'">Start</button>
+
+
+<!-- <script>
+  async function startButton(startHere) {
+    try {
+      const res = await fetch('/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startHere })
+      });
+
+      const data = await res.json();
+      console.log("Backend response", data);
+
+      if (data.success) {
+        window.location.href = '/reading_start';
+      } else {
+        console.log("No success flag:", data);
+      }
+    } catch (err) {
+      console.error("Capture error:", err);
+    }
+  }
+</script> -->
+<% include('../partial/footer')%>
