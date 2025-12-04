@@ -6,12 +6,14 @@ const session = require('express-session');
 require('dotenv').config();              
 const OpenAI = require('openai'); 
 const userModel = require('./models/userModel');
+const PalmReading = require('./models/palmReadingDB');
+
 
 const vision =require('@google-cloud/vision');
 
 const visionClient = new vision.ImageAnnotatorClient();
 
-const { getRandomMessage } = require('./utils/palm_reading_responses');
+//const { getRandomMessage } = require('./utils/palm_reading_responses');
 //const { message, topic } = req.body;
 
 
@@ -30,9 +32,7 @@ app.use(express.static('public'));
 app.use(express.json({ limit: '5mb' }));
 
 
-//local host server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));
+
 
 
 const sessions = require('express-session');
@@ -64,7 +64,7 @@ const mongoDBAppName = process.env.MONGODB_MYAPPNAME;
 // build the URI using the ENV variables
 const connectionString = `mongodb+srv://${mongoDBUser}:${mongoDBPassword}@cluster0.l8bm6h3.mongodb.net/?appName=${mongoDBAppName}`;
 
-mongoose.connect(connectionString)
+mongoose.connect(connectionString,{ dbName: 'second_assessment' }) 
   .then(() => {
     console.log("MongoDB Atlas connected");
     app.listen(3000, () => {
@@ -88,6 +88,26 @@ async function isHandInImage(imageBuffer) {
     ['hand', 'palm', 'finger', 'wrist'].includes(l.description.toLowerCase())
   );
 }
+
+//palm reader  randompick
+async function getRandomMessageFromDB(topic) {
+  const docs = await PalmReading.find({ topic });
+
+  if (!docs || docs.length === 0) return null;
+
+  const doc = docs[0];
+
+  if (!doc.messages || doc.messages.length === 0) return null;
+
+  const i = Math.floor(Math.random() * doc.messages.length);
+  return doc.messages[i];
+}
+
+
+
+
+
+
 
 
 
@@ -160,10 +180,17 @@ app.get('/', (req, res) => {
     isLoggedIn: checkLoggedInState(req)
   });
 });
+app.get('/login', (req, res) => {
+  res.render('pages/login', { 
+    errorMessage: null,
+    isLoggedIn: checkLoggedInState(req)
+  });
+});
 
 app.get('/reading_start', (req, res) => {
   res.render('pages/reading_start');
 });
+
 
 
 
@@ -211,12 +238,49 @@ app.post('/reading/capture', async (req, res) => {
 
   
 
-app.post('/reading', (req,res)=>{
-  const {topic} = req.body;
-  const message = getRandomMessage(topic);
-  if(!message) return res.status(400).json({error: 'Unknown Topic'});
-  res.json({message});
+app.post('/reading', async (req, res) => {
+  const { topic } = req.body;
+  //const topic = (req.body.topic || '').toLowerCase().trim();
+
+    if (!topic) {
+      return res.status(400).json({ error: 'No topic provided' });
+    }
+
+  const message = await getRandomMessageFromDB(topic);  
+
+  if (!message) {
+    return res.status(400).json({ error: "Unknown Topic" });
+  }
+
+  res.json({ message });
 });
+// app.post('/reading', async (req, res) => {
+//   try {
+//     const topic = (req.body.topic || '').toLowerCase().trim();
+
+//     const allowed = ['love', 'career', 'health'];
+//     if (!allowed.includes(topic)) {
+//       return res.status(400).json({ error: `Unknown Topic` });
+//     }
+
+//     const message = await getRandomMessageFromDB(topic);
+
+//     if (!message) {
+//       return res.status(400).json({ error: `No messages found for topic: ${topic}` });
+//     }
+
+//     res.json({ message });
+
+//   } catch (err) {
+//     console.error('Error in /reading:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+
+
+
 
 app.post('/chatbot', async (req, res) => {
   try {

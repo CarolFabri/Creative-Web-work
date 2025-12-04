@@ -1,9 +1,14 @@
 const mongoose = require('mongoose'); 
 const palmReadingSchema= new mongoose.Schema({
-    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false},
-    imagePath: String,
-    topics: String,
-    readingText: String,
+    topic :{
+        type: String,
+        required: true,
+        enum: ['love','career','health']
+    },
+    messages: {
+    type: [String],     
+    required: true
+  },
     createdAt: {type:Date, default: Date.now}
 })
 

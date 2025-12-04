@@ -6,6 +6,7 @@
 <button type="button" onclick="sendTopic('health')">Health</button>
 
 <p id="topic-pick"></p>
+
 <script>
   function sendTopic(topic) {
     fetch('/reading', {
@@ -15,11 +16,13 @@
     })
       .then(res => res.json())
       .then(data => {
-        console.log("Your palm reading:", data.message);
-        document.getElementById('topic-pick').innerText = data.message;
+        console.log('Backend /reading response:', data);
+        document.getElementById('topic-pick').innerText =
+          data.message || data.error || 'No message returned';
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('fetch error /reading:', err));
   }
 </script>
+
 
 <%- include('../partial/footer') %>

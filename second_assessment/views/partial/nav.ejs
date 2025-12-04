@@ -1,16 +1,20 @@
 <nav>
-  <a href="login">Home</a>
- <%if(!isLoggedIn){%>
-    <a href="login">Login</a>
-    <a href="register">Register</a>
-    <%} else {%>
-    <a href="logout">Logout</a>
-    <a href="app">Application</a>
-    <a href="profile">Profile</a>
-    <a href="Admin">Admin Page Only</a>
-    <a href="fortune_history">Fortune History</a>
-    <a href="palm_reader">Palm Reader</a>
-    <a href="speak_romani">Speack to a Romani</a>
-    <%} %>
-     
+
+  <% if (!isLoggedIn) { %>
+      <!-- NOT LOGGED IN -->
+      <a href="/login">Home</a>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+
+  <% } else { %>
+      <!-- LOGGED IN -->
+      <a href="/logout">Logout</a>
+      <a href="/app">Application</a>
+      <a href="/profile">Profile</a>
+      <a href="/admin">Admin Page Only</a>
+      <a href="/fortune_history">Fortune History</a>
+      <a href="/reading_start">Palm Reader</a>
+      <a href="/chatbot">Speak to a Romani</a>
+  <% } %>
+
 </nav>
