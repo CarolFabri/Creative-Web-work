@@ -1,14 +1,31 @@
 <%- include('../partial/header') %>
 
 <h1>Select a Topic</h1>
-<button type="button" onclick="sendTopic('love')">Love</button>
-<button type="button" onclick="sendTopic('career')">Career</button>
-<button type="button" onclick="sendTopic('health')">Health</button>
+
+<button type="button" class="topic-btn" onclick="sendTopic('love')">Love</button>
+<button type="button" class="topic-btn" onclick="sendTopic('career')">Career</button>
+<button type="button" class="topic-btn" onclick="sendTopic('health')">Health</button>
 
 <p id="topic-pick"></p>
 
+<!-- Next button (hidden at first) -->
+<button id="next-button" type="button" style="display:none;" onclick="window.location.href='/chatbot'">
+  Next
+</button>
+
 <script>
+  let topicChosen = false;
+
   function sendTopic(topic) {
+    // Stop multiple selections
+    if (topicChosen) return;
+
+    topicChosen = true;
+
+    // Disable all topic buttons
+    const buttons = document.querySelectorAll('.topic-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
     fetch('/reading', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -16,13 +33,26 @@
     })
       .then(res => res.json())
       .then(data => {
-        console.log('Backend /reading response:', data);
-        document.getElementById('topic-pick').innerText =
-          data.message || data.error || 'No message returned';
-      })
-      .catch(err => console.error('fetch error /reading:', err));
+        console.log("Backend response:", data);
+
+        const display = document.getElementById('topic-pick');
+
+        if (data.message) {
+          // Show reading
+          display.innerText = data.message;
+
+          // Show next button
+          document.getElementById('next-button').style.display = 'inline-block';
+        } else {
+          // Backend error message
+          display.innerText = data.error || "Unexpected error";
+
+          // Re-enable buttons so user can choose again
+          topicChosen = false;
+          buttons.forEach(btn => btn.disabled = false);
+        }
+      });
+     
   }
 </script>
 
-
-<%- include('../partial/footer') %>
