@@ -1,16 +1,46 @@
 const mongoose = require('mongoose');
-const chatSessionSchema = new mongoose.Schema({
-    userId: {type:mongoose.Schema.Types.ObjectId, ref: 'User', required:true},
-    readingId: {type:mongoose.Schema.Types.ObjectId, ref: 'PalmReading'},
-    messages: [{
-        sender: {type: String, enum: ['user', 'fortuneTeller']},
-        text: String,
-        createdAt: {type: Date, default:Date.now}
-    }],
-    maxQuestions:{type:Number, default:3},
-    questionAsked:{type:Number, default:0},
-    isClosed: {type:Boolean, default:false}
 
+// Each individual message in the chat
+const messageSchema = new mongoose.Schema({
+  sender: {
+    type: String,
+    enum: ['user', 'fortuneTeller'],
+    required: true
+  },
+  text: {
+    type: String,
+    required: true
+  },
+  time: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.model(chatSessionSchema, 'ChatSession');
+// The whole chat session for one user
+const chatSessionSchema = new mongoose.Schema({
+  // who this history belongs to
+  username: {
+    type: String,
+    required: true
+  },
+
+  // OPTIONAL flag – not required anymore, default is true
+  createAI: {
+    type: Boolean,
+    default: true // no "required: true" so validation won't fail
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+
+  // list of messages in this chat
+  messages: [messageSchema]
+});
+
+// model name in Mongo: "chatSession"
+module.exports = mongoose.model('chatSession', chatSessionSchema);
+
+

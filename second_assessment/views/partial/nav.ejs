@@ -1,20 +1,36 @@
-<nav>
+<nav class="nav">
 
-  <% if (!isLoggedIn) { %>
-      <!-- NOT LOGGED IN -->
-      <a href="/login">Home</a>
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
+ 
+  <button class="burger" aria-label="Open Menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 
-  <% } else { %>
-      <!-- LOGGED IN -->
-      <a href="/logout">Logout</a>
-      <a href="/app">Application</a>
-      <a href="/profile">Profile</a>
-      <a href="/admin">Admin Page Only</a>
-      <a href="/fortune_history">Fortune History</a>
-      <a href="/reading_start">Palm Reader</a>
-      <a href="/chatbot">Speak to a Romani</a>
-  <% } %>
+
+  <ul class="menu">
+    <% if (!isLoggedIn) { %>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/login">Login</a></li>
+      <li><a href="/register">Register</a></li>
+    <% } else { %>
+      <li><a href="/logout">Logout</a></li>
+      <li><a href="/app">Application</a></li>
+      <li><a href="/profile">Profile</a></li>
+      <li><a href="/history_chat">Fortune History</a></li>
+      <li><a href="/reading_start">Palm Reader</a></li>
+      <li><a href="/chatbot">Speak to a Romani</a></li>
+    <% } %>
+  </ul>
 
 </nav>
+<script>
+  const burger = document.querySelector('.burger');
+  const menu = document.querySelector('.menu');
+
+  burger.addEventListener('click', () => {
+    const isOpen = menu.classList.toggle('open');
+    burger.setAttribute('aria-expanded', isOpen);
+  });
+</script>
+

@@ -1,19 +1,42 @@
 <%- include('../partial/header') %>
+<body>
+  <%- include('../partial/borders') %>
 
 <h1>Vardani The Fortune Reader</h1>
+<div id="chat-box" 
 
+     style="width: 400px; min-height: 150px; border: 1px solid #ccc;
+            padding: 10px; margin-top: 15px;">
+  
+  <!-- First bot message -->
+  <p><strong>Vardani:</strong> Ask me a question about love, career or health.</p>
+
+</div>
 <div>
   <textarea id="user-input" rows="3" cols="40" placeholder="Ask me a question about love, career or health and I'll let you know your fortune"></textarea>
   <br>
   <button type="button" onclick="sendToBot()">Send</button>
 </div>
 
-<h3>Your Fortune is:</h3>
-<p id="bot-reply"></p>
+<button id="finish-button"
+        style="display:none; margin-top: 15px;"
+        onclick="window.location.href='/finish'">
+  Finish
+</button>
+
 
 <script>
   function sendToBot() {
     const message = document.getElementById('user-input').value;
+    const chatBox = document.getElementById('chat-box');
+    const finishBtn = document.getElementById('finish-button'); 
+
+    if (!message) return;
+
+    // show user message
+    chatBox.innerHTML += "<p><strong>You:</strong> " + message + "</p>";
+
+    document.getElementById('user-input').value = "";
 
     fetch('/chatbot', {
       method: 'POST',
@@ -22,18 +45,14 @@
     })
       .then(res => res.json())
       .then(data => {
-        if (data.error) {
-          console.error(data.error);
-          document.getElementById('bot-reply').innerText = 'Error: ' + data.error;
-          return;
-        }
-        document.getElementById('bot-reply').innerText = data.reply;
+        chatBox.innerHTML += "<p><strong>Vardani:</strong> " + data.reply + "</p>";
+        finishBtn.style.display = 'block';
       })
       .catch(err => {
-        console.error(err);
-        document.getElementById('bot-reply').innerText = 'Network error.';
+        chatBox.innerHTML += "<p><strong>Error:</strong> something went wrong.</p>";
       });
   }
 </script>
 
 <%- include('../partial/footer') %>
+</body>

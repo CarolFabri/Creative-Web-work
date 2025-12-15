@@ -1,0 +1,27 @@
+<%- include('../partial/header') %>
+<body>
+<%- include('../partial/nav') %>
+<%- include('../partial/borders') %>
+<h1>My Chat History</h1>
+
+<% if (messages.length === 0) { %>
+  <p>No chat history yet. Start a reading first!</p>
+
+<% } else { %>
+
+  <% messages.forEach(msg => { %>
+
+    <% if (msg.sender === "user") { %>
+      <p><strong>You:</strong> <%= msg.text %></p>
+
+    <% } else { %>
+      <p><strong>Fortune Teller:</strong> <%= msg.text %></p>
+
+    <% } %>
+
+  <% }) %>
+
+<% } %>
+
+<%- include('../partial/footer') %>
+</body>

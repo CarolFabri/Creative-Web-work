@@ -1,0 +1,148 @@
+body {
+  background-image: url('/images/background/background-img.png');
+  background-repeat: repeat;
+  background-size: auto;
+}
+
+/* Borders */
+.border-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px; /* adjust if needed */
+  background-image: url('/images/background/top-buttom.png');
+  background-repeat: repeat-x;
+  background-position: bottom center;
+  z-index: 9999;
+}
+
+.border-bottom{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background-image: url('/images/background/top-buttom.png');
+  background-repeat: repeat-x;
+  background-position: bottom center;
+   transform: scaleY(-1);   /*FLIP VERTICALLY */
+  transform-origin: center;
+
+  z-index: 9999;
+  pointer-events: none;
+}
+.border-left {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50px;                         
+  height: 100%;
+  background-image: url('/images/background/left.png');
+  background-repeat: repeat-y;
+  background-position: right center;   
+  background-size: auto;               
+  z-index: 9999;
+}
+.border-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  background-image: url('/images/background/left-right.png');
+  background-repeat: repeat-y;
+  background-position: left center; 
+  z-index: 9999;
+}
+
+/*Text background*/
+#p-background {
+  max-width: 800px;
+  margin: 40px auto;
+
+  padding: 20px 30px;
+
+  background: rgba(0, 0, 0, 0.55); /* dark overlay */
+  color: #f5f5f5;
+
+  border-radius: 12px;
+
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px); /* optional, modern browsers */
+}
+
+#loginBox{
+  min-height: 50vh;
+  width: min(500px, 90%);   /* THIS controls how wide the background is */
+  margin: 0 auto;           /* centers the box horizontally */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+
+
+
+#loginBox form{
+  display: flex;              /* stacks form items neatly */
+  flex-direction: column;    /* label, input, label, input... vertically */
+  gap: 0.01rem;               /* space between items */
+  width: min(100, 100%);  
+}
+
+.nav{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  padding-left: 4rem;
+  padding-top: 3rem;
+}
+
+.burger{
+  display: block;            /* ALWAYS visible */
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.burger span{
+  display: block;
+  width: 28px;
+  height: 3px;
+  margin: 6px 0;
+  background: #c5e011;
+}
+
+.menu{
+  display: none;             /* hidden by default */
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+  padding-left: 5rem;
+  position: absolute;
+  top: 100%;
+  left: 1rem;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.65);
+}
+
+.menu.open{
+  display: flex;             /* shown when JS toggles .open */
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.menu a{
+  color: #fff;
+  text-decoration: none;
+}

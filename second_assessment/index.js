@@ -7,6 +7,7 @@ require('dotenv').config();
 const OpenAI = require('openai'); 
 const userModel = require('./models/userModel');
 const PalmReading = require('./models/palmReadingDB');
+const ChatSession = require('./models/chatSession');
 
 
 const vision =require('@google-cloud/vision');
@@ -144,40 +145,23 @@ function updateProfile (req){
   return req.session && req.session.username
 }
 
-async function checkAdmin(req, res,nextAction){
-  try{
-    if(!req.session||!req.session.username){
-      return res.render('pages/notloggedin',{isLoggedIn:false});
-      //return res.sendFile(path.join(__dirname,'/views','notloggedin.html'));
-    }
-    const user = await findUser(req.session.username);
-    if(!user||!user.isAdmin){
-      return res.render('pages/login', {
-      errorMessage: "Access denied.Admins Only, login ",
-      isLoggedIn: false
-      });
-    }
-    req.currentUser=user;
-    nextAction();
-  } catch(err){
-    console.error("Error checking admin status:",err);
-    res.status(500).send("Internal server error");
-  }
-}
-
-
-
 
 
 //openAi chatbot 
-const client = new OpenAI({                // ✅ create the client here
+const client = new OpenAI({                
   apiKey: process.env.OPENAI_API_KEY
 });
 
 app.get('/', (req, res) => {
-  res.render('pages/login', { 
+  res.render('pages/home', { 
     errorMessage: null,
-    isLoggedIn: checkLoggedInState(req)
+   // isLoggedIn: checkLoggedInState(req)
+  });
+});
+app.get('/home', (req, res) => {
+  res.render('pages/home', { 
+    errorMessage: null,
+   // isLoggedIn: checkLoggedInState(req)
   });
 });
 app.get('/login', (req, res) => {
@@ -191,9 +175,6 @@ app.get('/reading_start', (req, res) => {
   res.render('pages/reading_start');
 });
 
-
-
-
 app.get('/reading_topic', (req, res) => {
   res.render('pages/reading_topic');
 });
@@ -202,10 +183,25 @@ app.get('/chatbot', (req, res) => {
   res.render('pages/chatbot');
 });
 
+app.get('/history_chat', async (req,res) => {
+  const username = req.session.username;
+  if(!username){
+    return res.render('pages/history_chat',{messages:[]})
+  }
+  const session = await ChatSession.findOne({ username }).sort({ _id: -1 });
+if(!session){
+    return res.render('pages/history_chat',{messages:[]})
+  }
+  res.render('pages/history_chat',{messages: session.messages})
+});
 // app.post('/start', (req, res) => {
 //   console.log(req.body);
 //   res.json({ success: true });
 // });
+
+app.get('/finish',(req,res) =>{
+  res.render('pages/finish');
+});
 
 
 app.post('/reading/capture', async (req, res) => {
@@ -284,12 +280,17 @@ app.post('/reading', async (req, res) => {
 
 app.post('/chatbot', async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message } = req.body; //get message send from the frontend user
 
-    if (!message) {
+    const username =req.session.username;
+    if(!username){
       return res.status(400).json({ error: 'No message provided' });
     }
 
+    if (!message) { //if no message send error
+      return res.status(400).json({ error: 'No message provided' });
+    }
+// This is where we ask AI for reply
     const completion = await client.chat.completions.create({
       model: 'gpt-4.1-nano',
     messages: [
@@ -308,6 +309,36 @@ RULES:
 - Speak in short magical sentences.
 - Never give medical or financial guarantees.
 - This is for entertainment only.
+-Come closer, miri chaj… miri raklo… my child.”
+-The old fortune reader lifts your hand softly, her fingers cool like moonlight.
+
+-Ahh… dikh… look here,” she whispers, brushing the centre of your palm.
+-The Drom e Zor — the Path of Strength — runs deep within you. It tells me you have walked through shadows that others never saw… yet you carry the fire still burning inside.”
+
+Her bracelets chime like tiny spirits as she turns your hand.
+
+“Your Lachi Bacht, your good fortune, is awakening.”
+She closes her eyes, inhaling as if hearing something ancient.
+“You will soon stand at a doorway… two choices, both wrapped in destiny. One path will call to your heart, the other to your fear.
+Choose the one that makes your chest feel warm — that is your bacht, your blessing.”
+
+Her finger traces a faint line near your thumb.
+
+“Here… the Rom Baro, the Great Spirit, shows me someone entering your life — or returning.”
+She smiles knowingly.
+“A presence of comfort, but also of challenge. Do not push this soul away. They carry a mirror for you… one you have long avoided.”
+
+She taps lightly at the end of your life line.
+
+“And this… this is your change.”
+A candle flickers as she speaks, almost on cue.
+“In three moons… maybe less… a shift comes. Something inside you will say, ‘Avri, avri… enough.’
+You will leave behind what no longer feeds your spirit, and when you do, the world will open to you like a curtain pulled wide.”
+
+She releases your hand gently, palms pressed together.
+
+“Go with peace, miri pori… go with courage.”
+“Your future is not written in stone — only in flame. And your flame burns bright.”
         `
         },
         {
@@ -316,8 +347,30 @@ RULES:
         }
       ]
     });
+//the AI reply 
+   const aiReply = completion.choices[0].message.content;
 
-    const aiReply = completion.choices[0].message.content;
+    // Find latest session or create one
+  let session = await ChatSession.findOne({ username }).sort({ createdAt: -1 });
+
+if (!session) {
+  session = new ChatSession({
+    username,
+    createAI: true,   // or remove if you made it optional
+    messages: []
+  });
+}
+
+    // Save BOT message
+    session.messages.push({
+      sender: 'fortuneTeller',
+      text: aiReply
+    });
+
+    // Save to MongoDB
+    await session.save();
+
+    //  Send reply to browser
     res.json({ reply: aiReply });
 
   } catch (err) {
@@ -356,21 +409,7 @@ app.get('/profile',async (req,res)=>{
   });
 });
 
-app.get('/admin',checkAdmin,async(req,res)=>{
-  try{
-  const users= await userModel.getAllUsersWithoutPasswords(); // for security we don't want to show passwords even to admin 
- // const adminPosts= await posts.getLastNPosts(3); // showing only last 3 posts to avoid code to break and be overloaded with too many post 
-  res.render('pages/admin',{ // again used the same code used for login
-    isLoggedIn: checkLoggedInState(req),
-    users : users,
-    posts: adminPosts
 
-  });
-} catch(err){
-  console.error("Error loading admin page:",err);
-  res.status(500).send("Internal server error");
-  }  
-});
 
 
 app.post('/register', async (req, res) => {
@@ -419,11 +458,7 @@ app.post('/profile', async (req, res) => {
   });
 });
 
-app.post('/admin/deleteUser',checkAdmin, async(req,res)=>{ // I was trying to figure how to use the checkAdmin function here to avoid code repetition, perhaps I could combine with the deletePost function, but I left as is as it makes sense for me 
-    const userId = req.body.userId;
-    await userModel.deleteUserById(userId);
-    res.redirect('/admin');
-});
+
 
 
 

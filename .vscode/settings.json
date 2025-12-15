@@ -1,3 +1,4 @@
 {
-    "editor.suggestOnTriggerCharacters": true
+    "editor.suggestOnTriggerCharacters": true,
+    "postman.settings.dotenv-detection-notification-visibility": false
 }
