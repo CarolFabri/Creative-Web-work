@@ -1,27 +1,39 @@
 <%- include('../partial/header') %>
-<body>
 <%- include('../partial/nav') %>
 <%- include('../partial/borders') %>
-<div id="p-background">
-<h1>Welcome to Marks of Destiny</h1>
 
-<p>
-Here, you will discover a pathway into your future — a palm-reading experience where, with nothing more than a photograph of your hand, hidden truths begin to reveal themselves.
-</p>
+<section class="home-illustration">
+  <img src="/images/gypsyIllustration/gypsy-home.png" alt="Gypsy woman illustration holding a crystal ball wearing a colourful dress">
 
-<p>
-Through the lines of your palm, you may uncover insights into your love, career, or health. But what if that is not enough?
-</p>
+  <div id="p-background">
+    <h1>Welcome to Marks of Destiny</h1>
 
-<p>
-In that case, you may speak with a Romani woman through a mystical chat, receiving answers whispered from a realm beyond time — a place where past, present, and future are known.
-</p>
+    <p>
+      Here, you will discover a pathway into your future — a palm-reading experience where, with nothing more than a photograph of your hand, hidden truths begin to reveal themselves.
+    </p>
 
-<h2>Are you ready for this mystical and revealing journey?</h2>
+    <p>
+      Through the lines of your palm, you may uncover insights into your love, career, or health. But what if that is not enough?
+    </p>
 
-<p>
-If so, create an account and step into this enchanted world, where destiny is closer than you think.
-</p>
-</div>
-<% - include ('../partial/footer') %>
-</body>
+    <p>
+      In that case, you may speak with a Romani woman through a mystical chat, receiving answers whispered from a realm beyond time — a place where past, present, and future are known.
+    </p>
+
+    <h2>Are you ready for this mystical and revealing journey?</h2>
+
+    <p>
+      If so, create an account and step into this enchanted world, where destiny is closer than you think.
+    </p>
+       <button class="button" type="button" onclick="window.location.href='/register'">
+        Start 
+        <span class="star star-1"></span>
+        <span class="star star-6"></span>
+</button>
+
+  </div>
+</section>
+
+<%- include('../partial/footer') %>
+
+

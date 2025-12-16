@@ -58,19 +58,117 @@ body {
 
 /*Text background*/
 #p-background {
-  max-width: 800px;
-  margin: 40px auto;
-
-  padding: 20px 30px;
-
-  background: rgba(0, 0, 0, 0.55); /* dark overlay */
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  z-index: 1;
   color: #f5f5f5;
-
-  border-radius: 12px;
-
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px); /* optional, modern browsers */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: -40px;
+  padding: 24px;
+  max-width: 50%;
 }
+
+
+
+.button{
+  position: relative;
+  padding: 12px 35px;
+  background: var(--var-color, #111);
+  font-size: 17px;
+  font-weight: 500;
+  color: #181818;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 0 #efc958;
+transition: all 0.3s ease-in-out;
+
+}
+
+/* STAR BASE */
+.star{
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background: #fffdef;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
+}
+
+/* STAR 1 (left) */
+.star-1{
+  top: 20%;
+  left: 20%;
+}
+
+/* STAR 6 (center) */
+.star-6{
+  top: 50%;
+  left: 50%;
+  width: 5px;
+}
+
+/* HOVER EFFECT */
+.button:hover{
+  box-shadow: 0 0 25px #fffdef;
+}
+
+/* STAR ANIMATION ON HOVER */
+.button:hover .star-1{
+  top: -80%;
+  left: -30%;
+  width: 25px;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.button:hover .star-6{
+  top: 140%;
+  left: 60%;
+  width: 8px;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+
+
+
+/*Illustration styling */
+.home-hero{
+  position: relative;        /* anchor for overlap */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* IMAGE */
+.home-illustration{
+  z-index: 2;              
+}
+
+.home-illustration{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  
+  padding-top: 30px;
+  box-sizing: border-box;
+}
+
+
+.home-illustration img{
+  display: block;
+  margin: 0 auto;        /* safety net */
+  max-width: 32rem;
+  width: 100%;
+  height: auto;
+  
+}
+/*Login section*/
 
 #loginBox{
   min-height: 50vh;
@@ -102,7 +200,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+   position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
   padding-left: 4rem;
   padding-top: 3rem;
 }
@@ -145,4 +246,17 @@ body {
 .menu a{
   color: #fff;
   text-decoration: none;
+}
+
+@media (min-width:1200px){
+
+  #p-background{
+    margin-top: -75px;
+  }
+  .home-illustration{
+    padding-top: 20px;
+  }
+  .home-illustration img{
+    max-width: 60rem;
+  }
 }
