@@ -1,6 +1,6 @@
 <%- include('../partial/header') %>
 
-    <body>
+    
         <div class="border-top"></div>
         <div class="border-bottom"></div>
         <div class="border-left"></div>
@@ -10,22 +10,26 @@
         <%- include('../partial/nav') %>
         <%- include('../partial/borders') %>
 
+        <section class="register-illustration">
+        <img src="/images/gypsyIllustration/gypsy-login.png" alt="Gypsy reading a palm reading">
+        </section>
+      <div class="auth-hero page-login">
         <main id="loginBox">
         
-            <form action="/login" method="POST">
+            <form class="neon-form" action="/login" method="POST">
                 <label>Username</label>
                 <input type="text" id="username" name="username"><br>
 
                 <label>Password</label>
                 <input type="text" id="password" name="password"><br>
 
-                <input type="submit" value="Login">
+                <input class="button-res" type="submit" value="Login">
             </form>
         </main>
-
+     </div>
            <% if (errorMessage) { %>
   <p ><%= errorMessage %></p>
 <% } %>
-    </body>
+ 
 
     <%- include('../partial/footer') %>

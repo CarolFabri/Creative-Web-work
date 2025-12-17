@@ -1,12 +1,15 @@
 <%- include('../partial/header') %>
-<body>
+
     <h2>Simple Social - User Registration</h2>
            <%- include('../partial/nav') %>
            <%- include('../partial/borders') %>
+
+    <section class="register-illustration">
+        <img src="/images/gypsyIllustration/gypsy-register.png" alt="Gypsy reading a palm reading">
+    </section>
+
 <main id="loginBox">
-
-
-    <form action="/register" method="POST">
+     <form class="neon-form" action="/register" method="POST">
         <label>Username</label>
         <input type="text" id="username" name="username"><br>
         <label>Password</label>
@@ -15,9 +18,10 @@
         <input type="text" id="firstname" name="firstname"><br>
         <label>Last Name</label>
         <input type="text" id="lastname" name="lastname"><br>
-        <input type="submit" value="Register">
+        <input class="button-res" type="submit" value="Register">
     </form>
+    
 </main>
 
-</body>
+
  <%- include('../partial/footer') %>

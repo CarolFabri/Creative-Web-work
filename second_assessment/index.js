@@ -132,6 +132,14 @@ function checkLoggedIn(req, res, nextAction) {
    // res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
   }
 }
+function requireLogin(req, res, next) {
+  if (req.session && req.session.username) {
+    return next();
+  }
+  return res.status(401).render('pages/notloggedin', { isLoggedIn: false });
+}
+
+
 function checkLoggedInState(req) {
   return req.session && req.session.username
 }
@@ -175,9 +183,12 @@ app.get('/reading_start', (req, res) => {
   res.render('pages/reading_start');
 });
 
-app.get('/reading_topic', (req, res) => {
-  res.render('pages/reading_topic');
+app.get('/reading', (req, res) => {
+  checkLoggedIn(req, res, () => {
+    res.render('pages/reading', { isLoggedIn: true });
+  });
 });
+
 
 app.get('/chatbot', (req, res) => {
   res.render('pages/chatbot');
@@ -413,34 +424,41 @@ app.get('/profile',async (req,res)=>{
 
 
 app.post('/register', async (req, res) => {
-  if (await userModel.addUser(req.body.username, req.body.password, req.body.firstname, req.body.lastname)) {
-    res.render('pages/login', { isLoggedIn:false});
-    //res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  const { username, password, firstname, lastname } = req.body;
+
+  if (!username || !password || !firstname || !lastname) {
+    return res.render('pages/register', {
+      isLoggedIn: false,
+      errorMessage: 'Please fill in all fields.'
+    });
+  }
+
+  const ok = await userModel.addUser(username, password, firstname, lastname);
+
+  if (ok) {
+    return res.render('pages/login', { isLoggedIn: false });
   } else {
-    res.render ('pages/registration_failed', { isLoggedIn:true});
-    //res.sendFile(path.join(__dirname, 'views', 'registration_failed.html'));
+    return res.render('pages/registration_failed', { isLoggedIn: false });
   }
 });
+
 
 app.post('/login', async (req, res) => {
-  const user = await findUser(req.body.username);
-  if (user && await userModel.checkUser(req.body.username, req.body.password)) {
-    //added here the first name and lastname, not body but session.
-    req.session.username  = user.username;
-    req.session.firstname = user.firstname;
-    req.session.lastname  = user.lastname;
-    res.render('pages/app', {
-      isLoggedIn: checkLoggedInState(req),
-      username: req.session.username,
-     // posts: await posts.getLastNPosts(3)
-    })
-    //res.sendFile(path.join(__dirname, 'views', 'app.html'));
-  } else {
-    res.render('pages/login_failed', {isLoggedIn: false});
-    //res.sendFile(path.join(__dirname, 'views', 'login_failed.html'));
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.render('pages/login', { isLoggedIn: false, errorMessage: 'Enter username and password.' });
   }
 
+  const ok = await userModel.checkUser(username, password);
+  if (!ok) {
+    return res.render('pages/login', { isLoggedIn: false, errorMessage: 'Invalid login.' });
+  }
+
+  req.session.username = username; 
+  return res.redirect('/app');
 });
+
 app.post('/profile', async (req, res) => {
   await userModel.updateProfile(
     //in here is where we update the profile, also not session but body I got confused a bit. Body is from the form, session is to keep the user logged in 
