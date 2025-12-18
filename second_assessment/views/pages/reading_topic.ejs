@@ -1,18 +1,30 @@
 <%- include('../partial/header') %>
-<body>
+
   <%- include('../partial/borders') %>
-<h1>Select a Topic</h1>
 
-<button type="button" class="topic-btn" onclick="sendTopic('love')">Love</button>
-<button type="button" class="topic-btn" onclick="sendTopic('career')">Career</button>
-<button type="button" class="topic-btn" onclick="sendTopic('health')">Health</button>
+<main class="camera-background topic-bck">
+  <h1 class="topicTitle"> Your Luck:</h1>
+  <p>Come closer, little soul. Your palm speaks softly… listen to the path destiny has traced for you.</p>
 
-<p id="topic-pick"></p>
+  <div class="topic-btn-group" id="topic-buttons">
+    <button type="button" class="button hero-button topic-btn" onclick="sendTopic('love')">Love</button>
+    <button type="button" class="button hero-button topic-btn" onclick="sendTopic('career')">Career</button>
+    <button type="button" class="button hero-button topic-btn" onclick="sendTopic('health')">Health</button>
+  </div>
 
-<!-- Next button (hidden at first) -->
-<button id="next-button" type="button" style="display:none;" onclick="window.location.href='/chatbot'">
-  Next
-</button>
+  <div class="topic-pick-frame">
+    <p id="topic-pick"></p>
+  </div>
+  <button
+    id="next-button"
+    type="button"
+    class="button hero-button topic-btn"
+    style="display:none;"
+    onclick="window.location.href='/chatbot'"
+  >
+    Next
+  </button>
+</main>
 
 <script>
   let topicChosen = false;
@@ -23,9 +35,8 @@
 
     topicChosen = true;
 
-    // Disable all topic buttons
-    const buttons = document.querySelectorAll('.topic-btn');
-    buttons.forEach(btn => btn.disabled = true);
+    document.getElementById('topic-buttons').style.display = 'none';
+
 
     fetch('/reading', {
       method: 'POST',
@@ -43,17 +54,16 @@
           display.innerText = data.message;
 
           // Show next button
-          document.getElementById('next-button').style.display = 'inline-block';
+         document.getElementById('next-button').style.display = 'inline-block';
         } else {
-          // Backend error message
-          display.innerText = data.error || "Unexpected error";
+        display.innerText = data.error || "Unexpected error";
 
           // Re-enable buttons so user can choose again
-          topicChosen = false;
-          buttons.forEach(btn => btn.disabled = false);
+        topicChosen = false;
+        document.getElementById('topic-buttons').style.display = 'flex';
         }
       });
      
   }
 </script>
-</body>
+<%- include('../partial/footer') %>
