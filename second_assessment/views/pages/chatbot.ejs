@@ -1,28 +1,45 @@
 <%- include('../partial/header') %>
-<body>
+<link rel="stylesheet" href="/css/chatbot.css">
+
   <%- include('../partial/borders') %>
 
-<h1>Vardani The Fortune Reader</h1>
-<div id="chat-box" 
+<main class="camera-background chatGBT">
 
-     style="width: 400px; min-height: 150px; border: 1px solid #ccc;
-            padding: 10px; margin-top: 15px;">
-  
-  <!-- First bot message -->
-  <p><strong>Vardani:</strong> Ask me a question about love, career or health.</p>
-
+<h1 class="chatGBTtitle">Vardani The Fortune Reader</h1>
+<div id="chat-box" class="chat-box">
+  <div class="msg bot">
+    <div class="bubble">
+      <strong>Vardani:</strong> Ask me a question about love, career or health.
+    </div>
+  </div>
 </div>
-<div>
-  <textarea id="user-input" rows="3" cols="40" placeholder="Ask me a question about love, career or health and I'll let you know your fortune"></textarea>
-  <br>
-  <button type="button" onclick="sendToBot()">Send</button>
+<div class="chat-input">
+  <textarea
+    id="user-input"
+    rows="2"
+    placeholder="Ask me about love, career, or health..."
+  ></textarea>
+
+  <div class="chat-buttons">
+    <button
+      type="button"
+      class="button hero-button chat-send"
+      onclick="sendToBot()"
+    >
+      Send
+    </button>
+
+    <button
+      id="finish-button"
+      class="button hero-button chat-finish"
+      style="display:none;"
+      onclick="window.location.href='/finish'"
+    >
+      Finish
+    </button>
+  </div>
 </div>
 
-<button id="finish-button"
-        style="display:none; margin-top: 15px;"
-        onclick="window.location.href='/finish'">
-  Finish
-</button>
 
 
 <script>
@@ -43,7 +60,17 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message })
     })
-      .then(res => res.json())
+      .then(async (res) => {
+      const raw = await res.text();                 
+      let data = {};
+      try { data = JSON.parse(raw); } catch(e) {}   
+// chatGBT gave me this line of code because I was having an error, I don't understand the full logic yet 
+      if (!res.ok) {
+        const msg = data.error || data.message || raw || "Chatbot request failed";
+        throw new Error(msg);
+      }
+      return data;
+    })
       .then(data => {
         chatBox.innerHTML += "<p><strong>Vardani:</strong> " + data.reply + "</p>";
         finishBtn.style.display = 'block';
@@ -55,4 +82,3 @@
 </script>
 
 <%- include('../partial/footer') %>
-</body>

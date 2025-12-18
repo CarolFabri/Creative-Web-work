@@ -96,29 +96,40 @@ h1{
 }
 .hero-button{
   position: absolute;
+  margin-bottom: 50px;
   bottom: -20px;          /* adjust */
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
 }
+.hero-button.camera-button {
+  position: relative;   /* allow move the only the camera-button */
+  bottom: auto;
+  left: auto;
+  transform: none;
+  margin-top: 10px;
+}
 
-.start-img{
+
+
+.start-background {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 430px;              /* your phone-frame width */
   position: relative;
-  display: block;
-  margin: 40px auto 0;   /* 👈 pushes image down inside the box */
-  max-width: 70%;
+
+}
+
+.start-img {
+  
+  max-width: 380px;
   height: auto;
+  margin-top: 20px;          /* normal positive spacing */
   z-index: 2;
 }
 
-.start-background{
-  position: relative;
-}
-
-/* IMAGE */
-.start-img {
-  max-width: 70%;
-}
 
 .start-background{
   background: rgba(0,0,0,0.55);
@@ -128,10 +139,11 @@ h1{
   color: #f5f5f5;
   margin-left: auto;
   margin-right: auto;
-  margin-top: -40px;
-  padding: 24px;
+  margin-top: 150px;
   max-width: 50%;
+  padding-right: 40px;
   padding-bottom: 80px;
+  padding-left: 40px;
 }
 
 
@@ -192,7 +204,7 @@ h1{
 
 /*Illustration styling */
 .home-hero{
-  position: relative;        /* anchor for overlap */
+  position: relative;      
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -233,11 +245,11 @@ h1{
   border-radius: 16px;
   color: #f5f5f5;
 
-  margin: -40px auto 0;   /* 👈 keeps it centered */
+  margin: -40px auto 0;   
   padding: 24px 16px 80px;
 
-  width: 90%;             /* 👈 responsive width */
-  max-width: 700px;       /* 👈 bigger but controlled */
+  width: 90%;     
+  max-width: 700px;       
 }
 
 
@@ -264,6 +276,136 @@ h1{
 .page-login #loginBox{
   margin-top: -90px;
 }
+
+/* Camera Styling  */
+.cameraTitle{
+  padding-top: 20px;
+}
+.camera-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.camera-video {
+  width: 100%;
+  max-width: 90%;
+  margin-top: 20px;
+  border-radius: 12px;
+  border: 30px solid rgba(255, 255, 255, 0.4);
+  background: black;
+  
+}
+
+.camera-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.camera-background{
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  z-index: 1;
+  color: #f5f5f5;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 140px;
+  padding-left: 50px;
+  padding-right: 50px;
+  max-width: 50%;
+}
+/* Topic selection */
+.camera-background.topic-bck{
+padding: 50px;
+}
+.topicTitle{
+  margin-top: 20px;
+}
+.topic-btn-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.hero-button.topic-btn {
+  position: static;     /* or relative */
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin-left: 50px;
+}
+.topic-pick-frame {
+  margin: 20px 0;
+  padding: 16px;
+  border: 2px solid #6955f7;
+  border-radius: 12px;
+  text-align: center;
+}
+
+#topic-pick {
+  margin: 0; /* important */
+}
+.topic-pick-frame { display: none; } /*ChatGBT code because after wrapping the paragraph on reading topic, it was showing the box of next before user clicking*/
+.topic-pick-frame:has(#topic-pick:not(:empty)) { display: block; }
+
+
+/* ChatBot Style */
+.camera-background.chatGBT {
+  padding-top: 60px;      /* only chat page */
+  min-height: 80vh;
+  justify-content: flex-start;
+}
+
+#chat-box {
+  max-width: 100%;
+  margin: 20px auto;
+  background: rgba(10, 10, 20, 0.75); /* readable dark glass */
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  /* Glow */
+  box-shadow:
+    0 0 8px rgba(170, 90, 255, 0.8),
+    0 0 16px rgba(170, 90, 255, 0.5),
+    inset 0 0 10px rgba(0, 0, 0, 0.6);
+
+  color: #f5f5f7;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-y: auto;
+  
+  min-height: 150px; 
+  border: 1px solid #ccc;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 15px;
+}
+.camera-background.chatGBT {
+  box-sizing: border-box;
+  margin-top: 60px;       
+  margin-bottom: 30px;
+  padding-top: 12px;       
+  padding-bottom: 12px;
+
+  min-height: unset;      
+  height: auto;        
+  max-height: 60vh;   
+  max-width: 70%; 
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+
+.chatGBTtitle{
+margin-top: 60px;
+}
+.camera-background.chatGBT {
+  box-sizing: border-box;
+  padding: 18px;  /* enough to keep content away from the rounded edge */
+}
+
 
 /*Login section*/
 
@@ -296,6 +438,8 @@ h1{
 .page-login{
   margin-top: -50px;
 }
+
+/*Navigation bar */
 .nav{
   position: relative;
   display: flex;
@@ -348,6 +492,8 @@ h1{
   color: #fff;
   text-decoration: none;
 }
+
+/*Animation sparkles, got this code online, however changed a few styling to make it more sparkles */
 .sparkles{
   position: fixed;
   inset: 0;
@@ -423,9 +569,12 @@ h1{
   .button{
     left: 45%;
     margin-top: 40px;
+    
   }
   .hero-button{
     left: 50%;
+    padding: 20px 55px;
+    margin-bottom: 50px;
 }
   #loginBox{
     margin-top: -75px;
@@ -437,5 +586,18 @@ h1{
   }
   .page-login{
   margin-top: 10px;
+}
+.start-img{
+ max-width: 50rem;
+}
+.start-background{
+ max-width: 70%;
+ margin-top: 200px;
+ padding-left: 80px;
+ padding-right: 80px;
+ padding-top: 5px;
+}
+.camera-background{
+  margin-top: 200px;
 }
 }

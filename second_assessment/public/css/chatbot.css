@@ -1,0 +1,87 @@
+/* this code isn't mine, (only the neon light, that I've already used) but the main styling is from a online source*/
+#chat-box {
+  padding: 14px;
+  background: rgba(10, 10, 20, 0.75);
+  border: 2px solid rgba(170, 90, 255, 0.85);
+  border-radius: 14px;
+  box-shadow:
+    0 0 8px rgba(170, 90, 255, 0.7),
+    0 0 16px rgba(170, 90, 255, 0.45);
+  color: #f5f5f7;
+  overflow-y: auto; /* scroll if your other CSS limits height */
+}
+
+/* bubbles */
+.msg { display: flex; margin: 8px 0; }
+.msg.bot { justify-content: flex-start; }
+.msg.user { justify-content: flex-end; }
+
+.bubble {
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1.35;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.msg.user .bubble{
+  background: rgba(170, 90, 255, 0.22);
+  border: 1px solid rgba(170, 90, 255, 0.6);
+  text-align: right;
+}
+/* ✅ input area matches chat box width */
+.chat-input {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;  /* 👈 button under textarea */
+  gap: 10px;
+}
+
+.chat-input textarea {
+  width: 100%;             /* 👈 same width as chat-box container */
+  box-sizing: border-box;
+  resize: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  outline: none;
+}
+
+/* ✅ stop hero-button absolute positioning only here */
+.chat-send {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: 100%;             /* optional: full-width send button */
+}
+
+/* Stack buttons under the input */
+.chat-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* Override hero-button absolute positioning ONLY in chat */
+.chat-send,
+.chat-finish {
+  position: static !important;   
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+
+  width: 100%;                   /* same width as input */
+  margin: 0;
+}
+
+/* Optional: slightly smaller for elegance */
+.chat-finish {
+  opacity: 0.9;
+}
