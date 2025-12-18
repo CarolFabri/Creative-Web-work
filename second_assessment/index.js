@@ -27,10 +27,10 @@ app.set('view engine', 'ejs');
 app.set('views',path.join(__dirname,'views'));
 
 //middleware 
-app.use(express.urlencoded({extended: true, limit:'5mb'}));
+app.use(express.urlencoded({extended: true, limit:'10mb'}));
 app.use(express.static('public'));
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 
 
@@ -183,11 +183,11 @@ app.get('/reading_start', (req, res) => {
   res.render('pages/reading_start');
 });
 
+
 app.get('/reading', (req, res) => {
-  checkLoggedIn(req, res, () => {
-    res.render('pages/reading', { isLoggedIn: true });
+    res.render('pages/reading_topic', { isLoggedIn: true });
   });
-});
+
 
 
 app.get('/chatbot', (req, res) => {
