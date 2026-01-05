@@ -8,7 +8,7 @@
     0 0 8px rgba(170, 90, 255, 0.7),
     0 0 16px rgba(170, 90, 255, 0.45);
   color: #f5f5f7;
-  overflow-y: auto; /* scroll if your other CSS limits height */
+  overflow-y: auto; 
 }
 
 /* bubbles */
@@ -30,17 +30,17 @@
   border: 1px solid rgba(170, 90, 255, 0.6);
   text-align: right;
 }
-/* ✅ input area matches chat box width */
+/*  input area matches chat box width */
 .chat-input {
   width: 100%;
   margin-top: 10px;
   display: flex;
-  flex-direction: column;  /* 👈 button under textarea */
+  flex-direction: column;  /* button under textarea */
   gap: 10px;
 }
 
 .chat-input textarea {
-  width: 100%;             /* 👈 same width as chat-box container */
+  width: 100%;             /* same width as chat-box container */
   box-sizing: border-box;
   resize: none;
   border-radius: 12px;
@@ -51,13 +51,13 @@
   outline: none;
 }
 
-/* ✅ stop hero-button absolute positioning only here */
+/*stop hero-button absolute positioning only here */
 .chat-send {
   position: static;
   left: auto;
   bottom: auto;
   transform: none;
-  width: 100%;             /* optional: full-width send button */
+  width: 100%;          
 }
 
 /* Stack buttons under the input */
@@ -81,7 +81,7 @@
   margin: 0;
 }
 
-/* Optional: slightly smaller for elegance */
+
 .chat-finish {
   opacity: 0.9;
 }

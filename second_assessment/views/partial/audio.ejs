@@ -1,0 +1,38 @@
+<audio id="bgMusic" src="/audio/backgroundmusic.mp3" preload="auto" loop></audio>
+
+<div id="musicIndicator" class="music-dot hidden">🎵</div>
+
+<script>
+  const bgMusic = document.getElementById('bgMusic');
+  const musicIndicator = document.getElementById('musicIndicator');
+
+  // helper: show the icon
+  function showMusicIcon() {
+    if (musicIndicator) musicIndicator.classList.remove('hidden');
+  }
+
+  // helper: start music safely
+  function tryPlayMusic() {
+    if (!bgMusic) return;
+
+    bgMusic.volume = 0.4;
+
+    bgMusic.play()
+      .then(showMusicIcon)
+      .catch(() => console.log("Music couldn't start yet (needs user action)."));
+  }
+
+  // 1) If your Start button exists on THIS page, use it
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) {
+    startBtn.addEventListener('pointerdown', tryPlayMusic, { once: true });
+  }
+
+  // 2) Fallback: on ANY page, first tap/click anywhere starts music
+  document.addEventListener('pointerdown', tryPlayMusic, { once: true });
+</script>
+
+
+
+
+

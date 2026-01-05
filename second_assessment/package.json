@@ -1,4 +1,11 @@
+
 {
+  "name": "marks-of-destiny",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "@google-cloud/vision": "^5.3.4",
     "dotenv": "^17.2.3",
@@ -8,7 +15,6 @@
     "mongoose": "^8.20.1",
     "multer": "^2.0.2",
     "openai": "^6.9.1",
-    "package": "^1.0.1",
     "webcam-easy": "^1.1.1"
   }
 }

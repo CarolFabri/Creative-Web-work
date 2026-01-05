@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' })
-const session = require('express-session');
 require('dotenv').config();              
 const OpenAI = require('openai'); 
 const userModel = require('./models/userModel');
@@ -54,7 +53,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.set('view engine', 'ejs');
 
 const mongoose = require("mongoose");
 
@@ -65,16 +63,20 @@ const mongoDBAppName = process.env.MONGODB_MYAPPNAME;
 // build the URI using the ENV variables
 const connectionString = `mongodb+srv://${mongoDBUser}:${mongoDBPassword}@cluster0.l8bm6h3.mongodb.net/?appName=${mongoDBAppName}`;
 
-mongoose.connect(connectionString,{ dbName: 'second_assessment' }) 
+const PORT = process.env.PORT || 3000;
+
+mongoose.connect(connectionString, { dbName: 'second_assessment' })
   .then(() => {
     console.log("MongoDB Atlas connected");
-    app.listen(3000, () => {
-      console.log("http://localhost:3000");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+
 
 //hand detect help functions 
 
@@ -287,8 +289,6 @@ app.post('/reading', async (req, res) => {
 
 
 
-
-
 app.post('/chatbot', async (req, res) => {
   try {
     const { message } = req.body; //get message send from the frontend user
@@ -407,18 +407,33 @@ app.get('/register', (req, res) => {
   //res.sendFile(path.join(__dirname, 'views', 'register.html'));
 });
 
-app.get('/profile',async (req,res)=>{
-  if (!req.session.username){
-     return res.redirect('/login'); 
-    //return res.sendFile(path.join(__dirname, '/views', 'notloggedin.html')) from Dave's code, both code would redirect to login, but the redirect is shorter
+app.get('/profile', async (req, res) => {
+
+  // 1) Check login
+  if (!req.session.username) {
+    return res.redirect('/login');
   }
+
+  // 2) Get user from database
   const user = await findUser(req.session.username);
-    res.render('pages/profile',{
-      isLoggedIn: true,
-      username: req.session.username,
-      user: user
+
+  // 3) Get chat history
+  const chatSession = await ChatSession
+    .findOne({ username: req.session.username })
+    .sort({ _id: -1 });
+
+  let messages = [];
+  if (chatSession) {
+    messages = chatSession.messages;
+  }
+
+  // 4) Render with everything profile.ejs needs
+  res.render('pages/profile', {
+    user: user,
+    messages: messages
   });
 });
+
 
 
 
@@ -460,22 +475,33 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/profile', async (req, res) => {
+
+  if (!req.session.username) {
+    return res.redirect('/login');
+  }
+
   await userModel.updateProfile(
-    //in here is where we update the profile, also not session but body I got confused a bit. Body is from the form, session is to keep the user logged in 
     req.session.username,
     req.body.firstname,
     req.body.lastname
   );
 
-  const user = await findUser(req.session.username); // using the same funciton used for login, to get updated user info from CURRENT session username 
+  const user = await findUser(req.session.username);
 
-  res.render('pages/profile', { // used the same code from login to render the profile page with updated info
-    isLoggedIn: checkLoggedInState(req),
-    username: req.session.username,
-    user: user
+  const chatSession = await ChatSession
+    .findOne({ username: req.session.username })
+    .sort({ _id: -1 });
+
+  let messages = [];
+  if (chatSession) {
+    messages = chatSession.messages;
+  }
+
+  res.render('pages/profile', {
+    user: user,
+    messages: messages
   });
 });
-
 
 
 
