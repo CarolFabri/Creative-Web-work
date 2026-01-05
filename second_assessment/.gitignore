@@ -1,4 +1,10 @@
+# Environment variables
 .env
-second_assessment/.env
 *.env
+
+# Dependencies
+node_modules/
+
+# Cloud / credentials
 gcloud/
+
