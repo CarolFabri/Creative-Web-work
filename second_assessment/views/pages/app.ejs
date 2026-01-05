@@ -48,20 +48,8 @@
 </div>
     </section>
 </main>
-<script>
-  const startBtn = document.getElementById('startBtn');
-  const ringLoader= document.getElementById('ringLoader');
-  const startContent = document.getElementById('startContent');
-  const startMain = document.getElementById('startMain');
-  startBtn.addEventListener('click',() => {
-    startMain.classList.add('is-loading'); //this is to ensure the style only amend the ring page
-    ringLoader.hidden= false;
-    startContent.hidden = true;
 
-    setTimeout(() => {
-      window.location.href='/reading_start';
-    }, 4000);
-  });
-</script>
+<script src="/js/start-page.js"></script>
+
 
 <% include('../partial/footer')%>
