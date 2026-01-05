@@ -9,9 +9,8 @@ const PalmReading = require('./models/palmReadingDB');
 const ChatSession = require('./models/chatSession');
 
 
-const vision =require('@google-cloud/vision');
 
-const visionClient = new vision.ImageAnnotatorClient();
+
 
 //const { getRandomMessage } = require('./utils/palm_reading_responses');
 //const { message, topic } = req.body;
@@ -63,22 +62,36 @@ const mongoDBAppName = process.env.MONGODB_MYAPPNAME;
 // build the URI using the ENV variables
 const connectionString = `mongodb+srv://${mongoDBUser}:${mongoDBPassword}@cluster0.l8bm6h3.mongodb.net/?appName=${mongoDBAppName}`;
 
-const PORT = process.env.PORT || 3000;
-
 mongoose.connect(connectionString, { dbName: 'second_assessment' })
   .then(() => {
     console.log("MongoDB Atlas connected");
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    app.listen(process.env.PORT || 3000, () => {
+      console.log(`Server running on port ${process.env.PORT || 3000}`);
     });
+
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
 
 
+
+
 //hand detect help functions 
+
+// CHATGBT GAVE ME THIS CODE, FOR THE RENDER HOST 
+const fs = require("fs");
+
+if (process.env.GOOGLE_VISION_JSON) {
+  const credsPath = path.join("/tmp", "google-vision.json");
+  fs.writeFileSync(credsPath, process.env.GOOGLE_VISION_JSON, "utf8");
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = credsPath;
+}
+
+const vision = require('@google-cloud/vision');
+const visionClient = new vision.ImageAnnotatorClient();
+
 
 function base64ToBuffer(dataUrl){
   return Buffer.from(dataUrl.split(',')[1], 'base64');
