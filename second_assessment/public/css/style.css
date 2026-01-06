@@ -464,6 +464,8 @@ p {
 
 .start-img.chat{
   margin-top: 80px;
+  max-width: 18rem;
+
 }
 
 /* =========================================================
@@ -873,6 +875,9 @@ p {
   }
 
   .start-img.start-img.luck{
+    max-width: 30rem;
+  }
+  .start-img.chat {
     max-width: 30rem;
   }
 
