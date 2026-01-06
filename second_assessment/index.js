@@ -41,16 +41,18 @@ const oneHour = 1 * 60 * 60 * 1000;
 
 app.use(sessions({
   secret: "this is a secret",
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { maxAge: threeMinutes },
   resave: false
 }));
 
 app.use((req, res, next) => {
-  res.locals.isLoggedIn = !!(req.session && req.session.username);
+  res.locals.isLoggedIn = !!req.session?.username;
+  res.locals.username = req.session?.username;
   res.locals.errorMessage = null;
   next();
 });
+
 
 
 const mongoose = require("mongoose");
@@ -132,31 +134,13 @@ async function getRandomMessageFromDB(topic) {
 
 //function for login
 
-function checkLoggedIn(req, res, nextAction) {
-  if (req.session) {
-    if (req.session.username) {
-      nextAction()
-    } else {
-      req.session.destroy()
-      res.render('pages/notloggedin', {isLoggedIn: false});
-      // res.sendFile(path.join(__dirname, '/views', 'notLoggedin.html;)) sending ejs file instead of html ! 
-    }
-  } else {
-    req.session.destroy()
-    res.render('pages/notloggedin', {isLoggedIn: false});
-   // res.sendFile(path.join(__dirname, '/views', 'notloggedin.html'))
-  }
-}
+
 function requireLogin(req, res, next) {
   if (req.session && req.session.username) {
     return next();
   }
-  return res.status(401).render('pages/notloggedin', { isLoggedIn: false });
-}
-
-
-function checkLoggedInState(req) {
-  return req.session && req.session.username
+  return res.status(401).render('pages/notloggedin', //{ isLoggedIn: false }
+  );
 }
 
 
@@ -175,41 +159,47 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// PUBLIC landing page
 app.get('/', (req, res) => {
-  res.render('pages/home', { 
+  res.render('pages/home', {
     errorMessage: null,
-   // isLoggedIn: checkLoggedInState(req)
-  });
-});
-app.get('/home', (req, res) => {
-  res.render('pages/home', { 
-    errorMessage: null,
-   // isLoggedIn: checkLoggedInState(req)
-  });
-});
-app.get('/login', (req, res) => {
-  res.render('pages/login', { 
-    errorMessage: null,
-    isLoggedIn: checkLoggedInState(req)
+  
   });
 });
 
-app.get('/reading_start', (req, res) => {
+// PRIVATE app page
+app.get('/home', requireLogin, (req, res) => {
+  res.render('pages/home', {
+    errorMessage: null,
+   // isLoggedIn: true
+  });
+});
+
+app.get('/login', (req, res) => {
+  if (req.session.username) return res.redirect('/app');
+  res.render('pages/login', { errorMessage: null });
+});
+
+app.get('/reading_start', requireLogin,(req, res) => {
   res.render('pages/reading_start');
 });
 
 
-app.get('/reading', (req, res) => {
-    res.render('pages/reading_topic', { isLoggedIn: true });
+app.get('/reading', requireLogin, (req, res) => {
+    res.render('pages/reading_topic', );
   });
 
 
 
-app.get('/chatbot', (req, res) => {
-  res.render('pages/chatbot');
+app.get('/chatbot', requireLogin, (req, res) => {
+  res.render('pages/chatbot', {
+   // isLoggedIn: true,
+   // username: req.session.username
+  });
 });
 
-app.get('/history_chat', async (req,res) => {
+
+app.get('/history_chat', requireLogin, async (req,res) => {
   const username = req.session.username;
   if(!username){
     return res.render('pages/history_chat',{messages:[]})
@@ -225,12 +215,12 @@ if(!session){
 //   res.json({ success: true });
 // });
 
-app.get('/finish',(req,res) =>{
+app.get('/finish',requireLogin,(req,res) =>{
   res.render('pages/finish');
 });
 
 
-app.post('/reading/capture', async (req, res) => {
+app.post('/reading/capture', requireLogin, async (req, res) => {
   // const { image } = req.body;
   // console.log('Got image:', image?.slice(0, 50));
   // res.json({ success: true });
@@ -260,7 +250,7 @@ app.post('/reading/capture', async (req, res) => {
 
   
 
-app.post('/reading', async (req, res) => {
+app.post('/reading', requireLogin, async (req, res) => {
   const { topic } = req.body;
   //const topic = (req.body.topic || '').toLowerCase().trim();
 
@@ -302,7 +292,7 @@ app.post('/reading', async (req, res) => {
 
 
 
-app.post('/chatbot', async (req, res) => {
+app.post('/chatbot', requireLogin, async (req, res) => {
   try {
     const { message } = req.body; //get message send from the frontend user
 
@@ -404,20 +394,18 @@ if (!session) {
 });
 
 
-app.get('/app', checkLoggedIn, async (req, res) => {
-  //res.sendFile(path.join(__dirname, 'views', 'app.html'));
+app.get('/app', requireLogin, (req, res) => {
   res.render('pages/app', {
-    isLoggedIn: checkLoggedInState(req),
-    username: req.session.username,
-   // posts: await posts.getLastNPosts(3)
-  })
+   // isLoggedIn: true,
+    username: req.session.username
+  });
 });
 
 
 
 app.get('/register', (req, res) => {
-  res.render ('pages/register', { isLoggedIn: checkLoggedInState(req)});
-  //res.sendFile(path.join(__dirname, 'views', 'register.html'));
+  if (req.session.username) return res.redirect('/app');
+  res.render('pages/register');
 });
 
 app.get('/profile', async (req, res) => {
@@ -456,7 +444,7 @@ app.post('/register', async (req, res) => {
 
   if (!username || !password || !firstname || !lastname) {
     return res.render('pages/register', {
-      isLoggedIn: false,
+     // isLoggedIn: false,
       errorMessage: 'Please fill in all fields.'
     });
   }
@@ -464,7 +452,7 @@ app.post('/register', async (req, res) => {
   const ok = await userModel.addUser(username, password, firstname, lastname);
 
   if (ok) {
-    return res.render('pages/login', { isLoggedIn: false });
+    return res.render('pages/login',);
   } else {
     return res.render('pages/registration_failed', { isLoggedIn: false });
   }
@@ -475,12 +463,12 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.render('pages/login', { isLoggedIn: false, errorMessage: 'Enter username and password.' });
+    return res.render('pages/login', );
   }
 
   const ok = await userModel.checkUser(username, password);
   if (!ok) {
-    return res.render('pages/login', { isLoggedIn: false, errorMessage: 'Invalid login.' });
+    return res.render('pages/login', );
   }
 
   req.session.username = username; 
@@ -520,7 +508,11 @@ app.post('/profile', async (req, res) => {
 
 
 app.get('/logout', (req, res) => {
-  res.render('pages/loggedout', { isLoggedIn: false});
+  req.session.destroy(()=> {
+    res.clearCookie('connect.sid');
+    res.render('pages/loggedout', );
+  });
+  
 });
 
 
