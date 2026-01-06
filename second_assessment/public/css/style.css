@@ -250,7 +250,6 @@ p {
 
 /* Only during ring loading (app.ejs when showing loader) */
 .start-background.is-loading {
-  padding: 0;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(6px);
   border-radius: 16px;
@@ -697,11 +696,12 @@ p {
 }
 
 /* Variants used on finish / logged pages */
-.start-background.finish{
+.start-background.finish {
   margin-top: -75px;
   padding: 10px;
 }
-.start-background.logged{
+
+.start-background.logged {
   margin-top: -1px;
   padding: 10px;
 }
@@ -727,6 +727,7 @@ p {
   width: 0;
   height: 0;
 }
+
 /* =========================================================
    Audio 
    ========================================================= */
@@ -883,7 +884,7 @@ p {
     margin-top: -200px;
   }
   .start-background{
-  max-width:900px;  
+  max-width:700px;  
 }
 }
 
