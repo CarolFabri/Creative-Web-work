@@ -156,12 +156,7 @@ app.get('/', (req, res) => {
 });
 
 // PRIVATE app page
-app.get('/home', requireLogin, (req, res) => {
-  res.render('pages/home', {
-    errorMessage: null,
-   // isLoggedIn: true
-  });
-});
+
 
 app.get('/login', (req, res) => {
   if (req.session.username) return res.redirect('/app');
