@@ -12,8 +12,6 @@ const ChatSession = require('./models/chatSession');
 
 
 
-//const { getRandomMessage } = require('./utils/palm_reading_responses');
-//const { message, topic } = req.body;
 
 
 
@@ -80,7 +78,7 @@ mongoose.connect(connectionString, { dbName: 'second_assessment' })
 
 
 
-//hand detect help functions 
+
 
 // CHATGBT GAVE ME THIS CODE, FOR THE RENDER HOST 
 const fs = require("fs");
@@ -94,7 +92,7 @@ if (process.env.GOOGLE_VISION_JSON) {
 const vision = require('@google-cloud/vision');
 const visionClient = new vision.ImageAnnotatorClient();
 
-
+//hand detect help functions 
 function base64ToBuffer(dataUrl){
   return Buffer.from(dataUrl.split(',')[1], 'base64');
 }
@@ -122,16 +120,6 @@ async function getRandomMessageFromDB(topic) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 //function for login
 
 
@@ -139,9 +127,9 @@ function requireLogin(req, res, next) {
   if (req.session && req.session.username) {
     return next();
   }
-  return res.status(401).render('pages/notloggedin', //{ isLoggedIn: false }
-  );
+  return res.status(401).render('pages/notloggedin');
 }
+
 
 
 function findUser(username) {
@@ -193,8 +181,6 @@ app.get('/reading', requireLogin, (req, res) => {
 
 app.get('/chatbot', requireLogin, (req, res) => {
   res.render('pages/chatbot', {
-   // isLoggedIn: true,
-   // username: req.session.username
   });
 });
 
@@ -210,10 +196,7 @@ if(!session){
   }
   res.render('pages/history_chat',{messages: session.messages})
 });
-// app.post('/start', (req, res) => {
-//   console.log(req.body);
-//   res.json({ success: true });
-// });
+
 
 app.get('/finish',requireLogin,(req,res) =>{
   res.render('pages/finish');
@@ -221,9 +204,7 @@ app.get('/finish',requireLogin,(req,res) =>{
 
 
 app.post('/reading/capture', requireLogin, async (req, res) => {
-  // const { image } = req.body;
-  // console.log('Got image:', image?.slice(0, 50));
-  // res.json({ success: true });
+  
   try {
     const { image } = req.body;
 
@@ -252,8 +233,6 @@ app.post('/reading/capture', requireLogin, async (req, res) => {
 
 app.post('/reading', requireLogin, async (req, res) => {
   const { topic } = req.body;
-  //const topic = (req.body.topic || '').toLowerCase().trim();
-
     if (!topic) {
       return res.status(400).json({ error: 'No topic provided' });
     }
@@ -266,28 +245,6 @@ app.post('/reading', requireLogin, async (req, res) => {
 
   res.json({ message });
 });
-// app.post('/reading', async (req, res) => {
-//   try {
-//     const topic = (req.body.topic || '').toLowerCase().trim();
-
-//     const allowed = ['love', 'career', 'health'];
-//     if (!allowed.includes(topic)) {
-//       return res.status(400).json({ error: `Unknown Topic` });
-//     }
-
-//     const message = await getRandomMessageFromDB(topic);
-
-//     if (!message) {
-//       return res.status(400).json({ error: `No messages found for topic: ${topic}` });
-//     }
-
-//     res.json({ message });
-
-//   } catch (err) {
-//     console.error('Error in /reading:', err);
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// });
 
 
 
@@ -396,7 +353,6 @@ if (!session) {
 
 app.get('/app', requireLogin, (req, res) => {
   res.render('pages/app', {
-   // isLoggedIn: true,
     username: req.session.username
   });
 });
@@ -444,7 +400,7 @@ app.post('/register', async (req, res) => {
 
   if (!username || !password || !firstname || !lastname) {
     return res.render('pages/register', {
-     // isLoggedIn: false,
+  
       errorMessage: 'Please fill in all fields.'
     });
   }
