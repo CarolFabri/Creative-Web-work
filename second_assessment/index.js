@@ -148,6 +148,13 @@ const client = new OpenAI({
 });
 
 // PUBLIC landing page
+app.get('/', (req, res) => {
+  res.render('pages/home', {
+    errorMessage: null,
+  
+  });
+});
+
 app.get('/home', (req, res) => {
   res.render('pages/home', {
     errorMessage: null,
@@ -174,7 +181,7 @@ app.get('/reading', requireLogin, (req, res) => {
 
 
 
-app.get('/chatbot', requireLogin, (req, res) => {
+app.get('/chatbot', requireLogin, (req, res) => {nod
   res.render('pages/chatbot', {
   });
 });
