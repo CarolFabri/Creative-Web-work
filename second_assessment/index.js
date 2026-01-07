@@ -148,7 +148,7 @@ const client = new OpenAI({
 });
 
 // PUBLIC landing page
-app.get('/home', (req, res) => {
+app.get('/', (req, res) => {
   res.render('pages/home', {
     errorMessage: null,
   
